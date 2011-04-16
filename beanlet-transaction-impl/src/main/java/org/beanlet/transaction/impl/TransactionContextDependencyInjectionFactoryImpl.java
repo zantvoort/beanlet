@@ -125,7 +125,7 @@ public final class TransactionContextDependencyInjectionFactoryImpl extends
                     BeanletStateException {
                 if (containerManaged) {
                     throw new BeanletStateException(ctx.getComponentMetaData().getComponentName(),
-                            "Method prohibited for beanlet managed transactions.");
+                            "Method prohibited for container managed transactions.");
                 }
                 if (userTransaction == null) {
                     throw new BeanletStateException(ctx.getComponentMetaData().getComponentName(),
