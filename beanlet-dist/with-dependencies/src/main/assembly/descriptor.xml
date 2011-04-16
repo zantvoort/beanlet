@@ -1,0 +1,27 @@
+<assembly>
+    <id>bin</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>packed</outputDirectory>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>unpacked</outputDirectory>
+            <unpack>true</unpack>
+            <scope>provided</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

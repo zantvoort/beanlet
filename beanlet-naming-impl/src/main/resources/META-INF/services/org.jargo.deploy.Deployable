@@ -1,0 +1,2 @@
+org.beanlet.naming.impl.DependencyInjectionFactoryProviderImpl
+org.beanlet.naming.impl.NamingContextElementAnnotationFactoryProviderImpl

@@ -1,0 +1,3 @@
+org.beanlet.springframework.impl.DependencyInjectionFactoryProviderImpl
+org.beanlet.springframework.impl.BeanletConfigurationValidatorProviderImpl
+org.beanlet.springframework.impl.SpringContextElementAnnotationFactoryProviderImpl

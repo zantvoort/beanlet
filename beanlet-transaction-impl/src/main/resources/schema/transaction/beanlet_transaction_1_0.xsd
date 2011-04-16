@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://beanlet.org/schema/transaction"
+           xmlns="http://beanlet.org/schema/transaction"
+           xmlns:bl="http://beanlet.org/schema/beanlet"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <xs:import namespace="http://beanlet.org/schema/beanlet" schemaLocation="http://beanlet.org/schema/beanlet/beanlet_1_0.xsd"/>
+    
+    <xs:element name="after-begin" type="after-begin-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="after-begin-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="after-completion" type="after-completion-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="after-completion-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="before-completion" type="before-completion-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="before-completion-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="transaction-attribute" type="transaction-attribute-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="transaction-attribute-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:attribute name="type" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+</xs:schema>

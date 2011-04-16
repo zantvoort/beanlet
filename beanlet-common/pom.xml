@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.beanlet</groupId>
+    <artifactId>beanlet-common</artifactId>
+    <packaging>jar</packaging>
+    <version>0.1</version>
+    <name>Beanlet Common</name>
+    <url>http://beanlet.org</url>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <url>http://beanlet.org/license.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <dependencies>
+        <dependency>
+            <groupId>org.beanlet</groupId>
+            <artifactId>beanlet-plugin</artifactId>
+            <version>0.11</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.beanlet.org</url>
+    </issueManagement>
+    <inceptionYear>2006</inceptionYear>
+    <developers>
+        <developer>
+            <email>zantvoort@users.sourceforge.net</email>
+            <id>leon.van.zantvoort</id>
+            <name>Leon van Zantvoort</name>
+            <url>http://confluence.beanlet.org/display/~leon.van.zantvoort</url>
+            <timezone>Europe/Amsterdam</timezone>
+        </developer>
+    </developers>
+    <scm>
+        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-common</connection>
+        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-common</developerConnection>
+        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-common</url>
+    </scm>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512m</maxmemory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <distributionManagement>
+        <repository>
+            <id>beanlet-repository</id>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>beanlet-snapshot-repository</id>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/maven-snapshot</url>
+        </snapshotRepository>
+        <site>
+            <id>beanlet-site</id>
+            <name>Beanlet Common Site</name>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-common</url>
+        </site>
+    </distributionManagement>    
+    <repositories>
+        <repository>
+            <id>jargo-repository</id>
+            <name>Jargo Maven Repository</name>
+            <url>http://jargo.org/maven</url>
+        </repository>
+        <repository>
+            <id>jargo-snapshot-repository</id>
+            <name>Jargo Maven Snapshot Repository</name>
+            <url>http://jargo.org/maven-snapshot</url>
+        </repository>
+        <repository>
+            <id>beanlet-repository</id>
+            <name>Beanlet Maven Repository</name>
+            <url>http://beanlet.org/maven</url>
+        </repository>
+        <repository>
+            <id>beanlet-snapshot repository</id>
+            <name>Beanlet Maven Snapshot Repository</name>
+            <url>http://beanlet.org/maven-snapshot</url>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <showWarnings>true</showWarnings>
+                    <compilerArguments>
+                        <Xlint:all></Xlint:all>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

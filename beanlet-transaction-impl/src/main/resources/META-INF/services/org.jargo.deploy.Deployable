@@ -1,0 +1,7 @@
+org.beanlet.transaction.impl.BeanletClassResolverProvider
+org.beanlet.transaction.impl.BeanletConfigurationValidatorProviderImpl
+org.beanlet.transaction.impl.DependencyInjectionFactoryProviderImpl
+org.beanlet.transaction.impl.MappedElementAnnotationFactoryProviderImpl
+org.beanlet.transaction.impl.TransactionAttributeElementAnnotationFactoryProviderImpl
+org.beanlet.transaction.impl.TransactionInvocationInterceptorFactoryProviderImpl
+org.beanlet.transaction.impl.TransactionDependencyInspectorProviderImpl

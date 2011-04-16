@@ -1,0 +1,30 @@
+<assembly>
+    <id>bin</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>packed</outputDirectory>
+            <includes>
+                <include>org.beanlet:beanlet</include>
+                <include>org.beanlet:beanlet-transaction</include>
+                <include>org.beanlet:beanlet-management</include>
+                <include>org.beanlet:beanlet-naming</include>
+                <include>org.beanlet:beanlet-web</include>
+                <include>org.beanlet:beanlet-springframework</include>
+            </includes>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

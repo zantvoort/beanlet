@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://beanlet.org/schema/beanlet"
+           xmlns="http://beanlet.org/schema/beanlet"
+           xmlns:tns="http://beanlet.org/schema/beanlet"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <xs:element name="beanlets">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="import" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="alias" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="package-annotations" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="annotations" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="beanlet" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="AliasNamesMustBeUnique">
+            <xs:selector xpath="tns:alias"/>
+            <xs:field xpath="@alias"/>
+        </xs:unique>
+        <xs:unique name="ImportResourcesMustBeUnique">
+            <xs:selector xpath="tns:import"/>
+            <xs:field xpath="@resource"/>
+        </xs:unique>
+        <xs:unique name="GlobalPackagesMustBeUnique">
+            <xs:selector xpath="tns:package-annotations"/>
+            <xs:field xpath="@package"/>
+        </xs:unique>
+        <xs:unique name="GlobalTypesMustBeUnique">
+            <xs:selector xpath="tns:annotations"/>
+            <xs:field xpath="@type"/>
+        </xs:unique>
+        <xs:unique name="BeanletNamesMustBeUnique">
+            <xs:selector xpath="tns:beanlet"/>
+            <xs:field xpath="@name"/>
+        </xs:unique>
+    </xs:element>
+    
+    <xs:element name="import">
+        <xs:complexType>
+            <xs:attribute name="resource" type="xs:string" use="required"/>
+            <xs:attribute name="optional" type="xs:boolean" use="optional" default="false"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="alias">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="alias" type="xs:string" use="required"/>
+            <xs:attribute name="override" type="xs:boolean" use="optional" default="false"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="beanlet">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element ref="annotation" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="annotations" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+            <xs:attribute name="name" type="xs:string" use="optional"/>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+            <xs:attribute name="abstract" type="xs:boolean" use="optional" default="false"/>
+            <xs:attribute name="parent" type="xs:string" use="optional"/>
+            <xs:attribute name="factory" type="xs:string" use="optional"/>
+            <xs:attribute name="factory-method" type="xs:string" use="optional"/>
+            <xs:attribute name="description" type="xs:string" use="optional"/>
+        </xs:complexType>
+        <xs:unique name="LocalTypesMustBeUnique">
+            <xs:selector xpath="tns:annotations"/>
+            <xs:field xpath="@type"/>
+        </xs:unique>
+    </xs:element>
+    
+    <xs:element name="package-annotations">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="annotation" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="package" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="package">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="annotations">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="annotation" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="annotation" type="annotation-type" abstract="true"/>
+    
+    <xs:complexType name="annotation-type">
+        <xs:sequence>
+            <xs:element ref="element" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="merge" type="xs:boolean" use="optional" default="false"/>
+        <xs:attributeGroup ref="shortElement-attributeGroup"/>
+    </xs:complexType>
+    
+    <xs:element name="element" type="element-type" abstract="true"/>
+    <xs:complexType name="element-type"/>
+    
+    <xs:attributeGroup name="shortElement-attributeGroup">
+        <xs:attribute name="field" type="xs:string" use="optional"/>
+        <xs:attribute name="method" type="xs:string" use="optional"/>
+        <xs:attribute name="constructor" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="index" type="xs:int" use="optional"/>
+    </xs:attributeGroup>
+    
+    <xs:element name="class">
+        <xs:complexType>
+            <xs:attribute name="type" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="member" type="member-type" abstract="true" substitutionGroup="element"/>
+    <xs:complexType name="member-type">
+        <xs:complexContent>
+            <xs:extension base="element-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="field" type="field-type" substitutionGroup="member"/>
+    <xs:complexType name="field-type">
+        <xs:complexContent>
+            <xs:extension base="member-type">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="method" type="method-type" substitutionGroup="member"/>
+    <xs:complexType name="method-type">
+        <xs:complexContent>
+            <xs:extension base="member-type">
+                <xs:sequence>
+                    <xs:element ref="parameters" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="constructor" type="constructor-type" substitutionGroup="member"/>
+    <xs:complexType name="constructor-type">
+        <xs:complexContent>
+            <xs:extension base="member-type">
+                <xs:sequence>
+                    <xs:element ref="parameters" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="method-parameter" type="method-parameter-type" substitutionGroup="element"/>
+    <xs:complexType name="method-parameter-type">
+        <xs:complexContent>
+            <xs:extension base="element-type">
+                <xs:sequence>
+                    <xs:element ref="parameters" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="index" type="xs:int" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="constructor-parameter" type="constructor-parameter-type" substitutionGroup="element"/>
+    <xs:complexType name="constructor-parameter-type">
+        <xs:complexContent>
+            <xs:extension base="element-type">
+                <xs:sequence>
+                    <xs:element ref="parameters" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="index" type="xs:int" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="parameters">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="parameter">
+        <xs:complexType>
+            <xs:attribute name="type" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="around-invoke" type="around-invoke-type" substitutionGroup="annotation"/>
+    <xs:complexType name="around-invoke-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="attribute" type="attribute-type" substitutionGroup="annotation"/>
+    <xs:complexType name="attribute-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+                <xs:attribute name="access-type" type="xs:string" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="factory" type="factory-type" substitutionGroup="annotation"/>
+    <xs:complexType name="factory-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="exclude-class-interceptors" type="exclude-class-interceptors-type" substitutionGroup="annotation"/>
+    <xs:complexType name="exclude-class-interceptors-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="exclude-default-interceptors" type="exclude-default-interceptors-type" substitutionGroup="annotation"/>
+    <xs:complexType name="exclude-default-interceptors-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="ignore-dependency" type="ignore-dependency-type" substitutionGroup="annotation"/>
+    <xs:complexType name="ignore-dependency-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="operation" type="operation-type" substitutionGroup="annotation"/>
+    <xs:complexType name="operation-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="proxy-method" type="proxy-method-type" substitutionGroup="annotation"/>
+    <xs:complexType name="proxy-method-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="post-construct" type="post-construct-type" substitutionGroup="annotation"/>
+    <xs:complexType name="post-construct-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="pre-destroy" type="pre-destroy-type" substitutionGroup="annotation"/>
+    <xs:complexType name="pre-destroy-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="lazy" type="lazy-type" substitutionGroup="annotation"/>
+    <xs:complexType name="lazy-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="value" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="retention" type="retention-type" substitutionGroup="annotation">
+        <xs:unique name="RetentionClassesMustBeUnique">
+            <xs:selector xpath="tns:class"/>
+            <xs:field xpath="@type"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="retention-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:sequence>
+                    <xs:element ref="class" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="value" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="remove" type="remove-type" substitutionGroup="annotation"/>
+    <xs:complexType name="remove-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="retain-if-exception" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="start" type="start-type" substitutionGroup="annotation"/>
+    <xs:complexType name="start-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="stop" type="stop-type" substitutionGroup="annotation"/>
+    <xs:complexType name="stop-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="wiring" type="wiring-type" substitutionGroup="annotation"/>
+    <xs:complexType name="wiring-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="value" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="inject" type="inject-type" substitutionGroup="annotation"/>
+    <xs:complexType name="inject-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:group ref="object-group"/>
+                <xs:attributeGroup ref="object-attributeGroup"/>
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+                <xs:attribute name="optional" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:group name="object-group">
+        <xs:choice>
+            <xs:element ref="value" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="collection" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="map" minOccurs="0" maxOccurs="1"/>
+            <xs:element ref="beanlet" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
+    </xs:group>
+    
+    <xs:attributeGroup name="object-attributeGroup">
+        <xs:attribute name="value" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+        <xs:attribute name="ref" type="xs:string" use="optional"/>
+        <xs:attribute name="nill" type="xs:boolean" use="optional"/>
+    </xs:attributeGroup>
+    
+    <xs:element name="value">
+        <xs:complexType>
+            <xs:group ref="object-group"/>
+            <xs:attributeGroup ref="object-attributeGroup"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="collection">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="value" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+            <xs:attribute name="synced" type="xs:boolean" use="optional"/>
+            <xs:attribute name="unmodifiable" type="xs:boolean" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="map">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+            <xs:attribute name="synced" type="xs:boolean" use="optional"/>
+            <xs:attribute name="unmodifiable" type="xs:boolean" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="entry">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="key" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="value" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="key" type="xs:string" use="optional"/>
+            <xs:attribute name="value" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="key">
+        <xs:complexType>
+            <xs:group ref="object-group"/>
+            <xs:attributeGroup ref="object-attributeGroup"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="dependencies" type="dependencies-type" substitutionGroup="annotation">
+        <xs:unique name="DependencyNamesMustBeUnique">
+            <xs:selector xpath="tns:dependency"/>
+            <xs:field xpath="@name"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="dependencies-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:sequence>
+                    <xs:element ref="dependency" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="dependency">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="proxy" type="proxy-type" substitutionGroup="annotation">
+        <xs:unique name="ProxyInterfacesMustBeUnique">
+            <xs:selector xpath="tns:interface"/>
+            <xs:field xpath="@type"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="proxy-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:sequence>
+                    <xs:element ref="interface" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="type" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="interface">
+        <xs:complexType>
+            <xs:attribute name="type" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="stateful" type="stateful-type" substitutionGroup="annotation"/>
+    <xs:complexType name="stateful-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="reentrant" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="stateless" type="stateless-type" substitutionGroup="annotation"/>
+    <xs:complexType name="stateless-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="reentrant" type="xs:boolean" use="optional"/>
+                <xs:attribute name="singleton" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="vanilla" type="vanilla-type" substitutionGroup="annotation"/>
+    <xs:complexType name="vanilla-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="singleton" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="interceptors" type="interceptors-type" substitutionGroup="annotation">
+        <xs:unique name="InterceptorClassesMustBeUnique">
+            <xs:selector xpath="tns:class"/>
+            <xs:field xpath="@type"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="interceptors-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:sequence>
+                    <xs:element ref="class" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="type" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="execute" type="execute-type" substitutionGroup="annotation"/>
+    <xs:complexType name="execute-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="threads" type="xs:int" use="optional"/>
+                <xs:attribute name="loop" type="xs:boolean" use="optional"/>
+                <xs:attribute name="interrupt" type="xs:boolean" use="optional"/>
+                <xs:attribute name="join" type="xs:boolean" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="schedule" type="schedule-type" substitutionGroup="annotation"/>
+    <xs:complexType name="schedule-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:attribute name="once" type="xs:boolean" use="optional"/>
+                <xs:attribute name="interrupt" type="xs:boolean" use="optional"/>
+                <xs:attribute name="join" type="xs:boolean" use="optional"/>
+                <xs:attribute name="initial-delay" type="xs:long" use="optional"/>
+                <xs:attribute name="delay" type="xs:long" use="optional"/>
+                <xs:attribute name="rate" type="xs:long" use="optional"/>
+                <xs:attribute name="cron" type="xs:string" use="optional"/>
+                <xs:attribute name="fire-all" type="xs:boolean" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This beanlet configuration file shows how beanlet itegrates database 
+     pooling. -->
+<beanlets xmlns="http://beanlet.org/schema/beanlet" 
+          xmlns:mx="http://beanlet.org/schema/management"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://beanlet.org/schema/beanlet http://beanlet.org/schema/beanlet/beanlet_1_0.xsd http://beanlet.org/schema/management http://beanlet.org/schema/management/beanlet_management_1_0.xsd">
+    
+    <!-- The annotations defined by the children of this element are applied to
+         all beanlets defined by this document. -->
+    <annotations>
+        <!-- Load beanlets in a lazy manner. -->
+        <lazy/>
+        <!-- Enable wiring by type. -->
+        <wiring value="BY_TYPE"/>
+    </annotations>
+    
+    <!-- This is an abstract beanlet. This beanlet is not deployed. It only
+         delivers a template for child beanlets. -->
+    <beanlet name="abstractDataSource" 
+             abstract="true" 
+             type="org.apache.commons.dbcp.BasicDataSource">
+        <inject method="setInitialSize" value="1"/>
+        <inject method="setMaxActive" value="5"/>
+        <inject method="setValidationQuery" optional="true"/>
+        <inject method="setDefaultAutoCommit" value="false"/>
+        <inject method="setTestOnBorrow" value="true"/>
+        <!-- Child beanlets are hereby forced to inject all of the following 
+             four methods. -->
+        <inject method="setDriverClassName"/>
+        <inject method="setUrl"/>
+        <inject method="setUsername"/>
+        <inject method="setPassword"/>
+        <pre-destroy method="close"/>
+    </beanlet>
+    
+    <!-- The dataSource beanlet extends the abstractDataSource beanlet. -->
+    <beanlet name="dataSource" parent="abstractDataSource">
+        <inject method="setDriverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+        <inject method="setUrl" value="jdbc:derby:Beanlet;create=true"/>
+        <!-- The following three methods are injected with null values 
+             explicitely. -->
+        <inject method="setUsername" nill="true"/>
+        <inject method="setPassword" nill="true"/>
+        <inject method="setValidationQuery" nill="true"/>
+    </beanlet>
+    
+    <beanlet name="xaDataSource"
+             type="org.enhydra.jdbc.pool.StandardXAPoolDataSource">
+        <inject method="setUser" nill="true"/>
+        <inject method="setPassword" nill="true"/>
+        <inject method="setJdbcTestStmt" nill="true"/>
+        <inject method="setDataSource">
+            <!-- The following beanlet demonstrates a nested beanlet. The nested
+                 beanlet is injected into the setDataSource method of the outer
+                 beanlet. -->
+            <beanlet type="org.enhydra.jdbc.standard.StandardXADataSource">
+                <inject method="setTransactionManager"/>
+                <inject method="setDriverName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+                <inject method="setUrl" value="jdbc:derby:Beanlet;create=true"/>
+                <inject method="setUser" nill="true"/>
+                <inject method="setPassword" nill="true"/>
+            </beanlet>
+        </inject>
+    </beanlet>
+</beanlets>

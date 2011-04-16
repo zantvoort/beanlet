@@ -1,0 +1,4 @@
+org.beanlet.management.impl.BeanletConfigurationValidatorProviderImpl
+org.beanlet.management.impl.BeanletManagementProviderImpl
+org.beanlet.management.impl.DependencyInjectionFactoryProviderImpl
+org.beanlet.management.impl.MappedElementAnnotationFactoryProviderImpl

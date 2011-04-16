@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanlets xmlns="http://beanlet.org/schema/beanlet" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://beanlet.org/schema/beanlet http://beanlet.org/schema/beanlet/beanlet_1_0.xsd">
+    
+    <beanlet name="org.objectweb.jotm.Jotm" 
+             type="org.objectweb.jotm.Jotm">
+        <!-- First constructor argument is injected with boolean true. -->
+        <inject constructor="true" index="0" value="true"/>
+        <!-- Second constructor argument is injected with boolean false. -->
+        <inject constructor="true" index="1" value="false"/>
+        <pre-destroy method="stop"/>
+    </beanlet>
+    
+    <!-- This getTransactionManager method of the org.objectweb.jotm.Jotm 
+         beanlet acts as factory method for this beanlet. -->
+    <beanlet type="javax.transaction.TransactionManager" 
+             factory="org.objectweb.jotm.Jotm" 
+             factory-method="getTransactionManager"/>
+
+    <!-- This getUserManager method of the org.objectweb.jotm.Jotm 
+         beanlet acts as factory method for this beanlet. -->
+    <beanlet type="javax.transaction.UserTransaction" 
+             factory="org.objectweb.jotm.Jotm" 
+             factory-method="getUserTransaction"/>
+</beanlets>

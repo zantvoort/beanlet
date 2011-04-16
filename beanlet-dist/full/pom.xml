@@ -1,0 +1,114 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.beanlet</groupId>
+        <artifactId>beanlet-dist</artifactId>
+        <version>1.0-rc3</version>
+    </parent>
+    <groupId>org.beanlet</groupId>
+    <artifactId>beanlet-full</artifactId>
+    <packaging>jar</packaging>
+    <version>${pom.parent.version}</version>
+    <name>Beanlet Full</name>
+    <scm>
+        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-dist/full</connection>
+        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-dist/full</developerConnection>
+        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-dist/full</url>
+    </scm>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512m</maxmemory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <distributionManagement>
+        <repository>
+            <id>beanlet-repository</id>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>beanlet-snapshot-repository</id>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/maven-snapshot</url>
+        </snapshotRepository>
+        <site>
+            <id>beanlet-site</id>
+            <name>Beanlet Site</name>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-full</url>
+        </site>
+    </distributionManagement>    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <showWarnings>true</showWarnings>
+                    <compilerArguments>
+                        <Xlint:all></Xlint:all>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>assembly</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>concat</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <tasks>
+                                <unjar dest="${project.build.directory}/ant/beanlet-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-transacton-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-transaction-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-management-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-management-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-naming-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-naming-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-web-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-web-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-springframework-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-springframework-impl*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-persistence"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-persistence*.jar"/></unjar>
+                                <concat destfile="${project.build.directory}/${project.build.finalName}-bin.dir/unpacked/META-INF/services/org.jargo.deploy.Deployable" fixlastline="true">
+                                    <fileset dir="${project.build.directory}/ant" includes="**/META-INF/services/org.jargo.deploy.Deployable"/>
+                                </concat>
+                                <copy todir="${project.build.directory}/${project.build.finalName}-bin.dir/unpacked" file="${project.build.directory}/${project.build.finalName}-bin.dir/LICENSE.txt"/>
+                                <jar destfile="${project.build.directory}/${project.build.finalName}.${project.packaging}">
+                                    <manifest>
+                                        <attribute name="Main-Class" value="org.jargo.container.Main"/>
+                                    </manifest>
+                                    <fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/unpacked">
+                                        <exclude name="META-INF/maven/**"/>
+                                        <include name="**"/>
+                                    </fileset>
+                                </jar>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

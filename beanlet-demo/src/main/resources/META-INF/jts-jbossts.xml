@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanlets xmlns="http://beanlet.org/schema/beanlet" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://beanlet.org/schema/beanlet http://beanlet.org/schema/beanlet/beanlet_1_0.xsd">
+    
+    <!-- The following beanlet is of type: javax.transaction.TransactionManager. 
+         The annotations however are applied to the 
+         com.arjuna.ats.jta.TransactionManager class. -->
+    <beanlet type="javax.transaction.TransactionManager">
+        <annotations type="com.arjuna.ats.jta.TransactionManager">
+            <inject>
+                <!-- The method element is used to uniquely specify a method. -->
+                <method name="transactionManager">
+                    <parameters/>
+                </method>
+            </inject>
+        </annotations>
+    </beanlet>
+    <beanlet type="javax.transaction.UserTransaction">
+        <annotations type="com.arjuna.ats.jta.UserTransaction">
+            <inject>
+                <method name="userTransaction">
+                    <parameters/>
+                </method>
+            </inject>
+        </annotations>
+    </beanlet>
+</beanlets>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The beanlet.xml file is the configuration file that is read by the 
+     container. This file can import other configuration files - as is 
+     demonstrated below.
+    
+     All beanlets need to be defined in beanlet configuration files. This is done
+     by specifying the <beanlet> tag. The 'type' and 'name' attributes are
+     optional.
+    
+     All child elements of the beanlet element are used to express Java 
+     annotation types. Note that these annotations can also be wrapped using the
+     <annotations> tag. This is shown at the jts-jbossts.xml file.
+    
+     Beanlet definitions can also be nested. This is demonstrated in the 
+     resources.xml file. -->
+<beanlets xmlns="http://beanlet.org/schema/beanlet" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xmlns:mx="http://beanlet.org/schema/management"
+          xmlns:sf="http://beanlet.org/schema/springframework"
+          xsi:schemaLocation="http://beanlet.org/schema/beanlet http://beanlet.org/schema/beanlet/beanlet_1_0.xsd 
+          http://beanlet.org/schema/management http://beanlet.org/schema/management/beanlet_management_1_0.xsd 
+http://beanlet.org/schema/springframework http://beanlet.org/schema/springframework/beanlet_springframework_1_0.xsd">
+    
+    <!-- Imports the resources.xml beanlet xml-file. -->
+    <import resource="resources.xml"/>
+    
+    <!-- The ${org.beanlet.demo.jts.provider} string acts as a configuration
+         placeholder. This string is substituded by the value specified at the
+         system properties or beanlet.properties file. The resulted file name is
+         imported. Note that nested configuration placeholders are supported as
+         well. -->
+    <import resource="jts-${org.beanlet.demo.jts.provider}.xml"/>
+    
+    <beanlet type="org.beanlet.demo.Main" name="main"/>
+    
+    <beanlet type="org.beanlet.demo.Demo" name="demo">
+        <!-- The beanlet exposes the Runnable interface. -->
+        <proxy type="java.lang.Runnable"/>
+        <!-- Configures the DemoInterceptor at class-level. -->
+        <interceptors type="org.beanlet.demo.DemoInterceptor"/>
+        <!-- The beanlet complies to the Runnable interface by mapping the doIt
+             method to the Runnable's run method. -->
+        <operation method="doIt" name="run"/>
+        <!-- The start- and stop-method must not be intercepted. -->
+        <exclude-class-interceptors method="start"/>
+        <exclude-class-interceptors method="stop"/>
+    </beanlet>
+    
+    <beanlet type="org.beanlet.demo.Quote" name="quote">
+        <!-- The setQuotes method is instructed to be injected with a 
+             String-collection (as detected by the container). -->
+        <inject method="setQuotes">
+            <collection>
+                <value value="This quote is printed by the quote beanlet."/>
+                <value value="A new quote is printed every whole 5 seconds."/>
+                <value value="This is configured by the @Schedule annotation."/>
+                <value value="Fixed-rate and fixed-delay scheduling is supported."/>
+                <value value="But also cron scheduling as is demonstrated right now."/>
+                <value value="If these quotes start to annoy you, restart the demo."/>
+                <value value="You can then see JPA in action."/>
+                <value value="Or replace this beanlet with the spring-quote beanlet."/>
+                <value value="You can do that by modifying the beanlet.xml file."/>
+                <value value="Update and redeploy the jar-file in the deploy directory."/>
+                <value value="And you will see a Spring powered beanlet application."/>
+                <value value="This is the last quote. Starting all over again."/>
+                <value value=""/>
+            </collection>
+        </inject>
+    </beanlet>
+    
+    <beanlet type="org.beanlet.demo.MOTD" name="motd">
+        <!-- The manageable annotation registers this beanlet to the management 
+             tree. -->
+        <mx:manageable/>
+        <!-- First constructor argument is configured to URL 
+             http://demo.beanlet.org. -->
+        <inject constructor="true" index="0" value="http://demo.beanlet.org"/>
+        <!-- The url field is now exposed as an attribute and is therefore also 
+             visible from the object's mbean. -->
+        <attribute description="URL to retrieve MOTD from." field="url"/>
+    </beanlet>
+    
+    <!-- The following beanlet definition demonstrates how spring dependency 
+         injection can be enabled. Note that this requires spring binaries to be
+         available to the container's classpath. -->
+    <!--beanlet type="org.beanlet.demo.Quote" name="spring-quote">
+        <sf:spring-context path="META-INF/spring.xml" method="setQuotes"/>
+        <schedule method="print" initial-delay="15000" merge="true"/>
+    </beanlet-->
+</beanlets>

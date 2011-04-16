@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://beanlet.org/schema/springframework"
+           xmlns="http://beanlet.org/schema/springframework"
+           xmlns:bl="http://beanlet.org/schema/beanlet"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <xs:import namespace="http://beanlet.org/schema/beanlet" schemaLocation="http://beanlet.org/schema/beanlet/beanlet_1_0.xsd"/>
+    
+    <xs:element name="spring-context" type="spring-context-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="spring-context-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:sequence>
+                    <xs:element ref="resource" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="path" type="xs:string" use="optional"/>
+                <xs:attribute name="type" type="xs:string" use="optional"/>
+                <xs:attribute name="context" type="xs:string" use="optional"/>
+                <xs:attribute name="bean-definition-reader" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="resource">
+        <xs:complexType>
+            <xs:attribute name="path" type="xs:string" use="required"/>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>    
+</xs:schema>
