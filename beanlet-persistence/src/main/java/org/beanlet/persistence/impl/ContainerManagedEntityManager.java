@@ -149,7 +149,11 @@ import java.util.Map;
  */
 abstract class ContainerManagedEntityManager implements EntityManager {
     
-    public abstract EntityManager getEntityManager();
+    abstract EntityManager getEntityManager();
+
+    abstract void preInvoke();
+
+    abstract void postInvoke();
     
     public void clear() {
         getEntityManager().clear();

@@ -48,12 +48,12 @@ import org.beanlet.common.BeanletStack;
  *
  * @author Leon van Zantvoort
  */
-final class InternalResourceLocalEntityManagerFactory implements EntityManagerFactory {
+final class InternalNonJTAEntityManagerFactory implements EntityManagerFactory {
     
     private final EntityManagerFactory emf;
     private final ThreadLocal<BeanletStack<Map<Object, EntityManager>>> localStack;
     
-    public InternalResourceLocalEntityManagerFactory(EntityManagerFactory emf) {
+    public InternalNonJTAEntityManagerFactory(EntityManagerFactory emf) {
         this.emf = emf;
         this.localStack = new ThreadLocal<BeanletStack<Map<Object, EntityManager>>>() {
             protected BeanletStack<Map<Object, EntityManager>> initialValue() {

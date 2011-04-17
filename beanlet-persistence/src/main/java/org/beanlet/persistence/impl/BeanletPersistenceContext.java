@@ -83,14 +83,26 @@ public final class BeanletPersistenceContext {
         final BeanletEntityManagerFactory emf = 
                 BeanletEntityManagerFactoryRegistry.getInstance(
                 pctx, componentUnit);
-        if (emf.getPersistenceUnitInfo().getTransactionType() == 
+        if (emf.getPersistenceUnitInfo().getTransactionType() ==
                 PersistenceUnitTransactionType.RESOURCE_LOCAL) {
-            throw new PersistenceException("Container managed entity manager " +
-                    "does not allow RESOURCE_LOCAL transaction type.");
+            // Container managed persistence contexts for resource_local persistence units is not supported by
+            // JPA specification. However, it is supported by Beanlet.
+//            throw new PersistenceException("Container managed entity manager " +
+//                    "does not allow RESOURCE_LOCAL transaction type.");
+            if (!transactionRegistry.containsKey(emf)) {
+                if (transactionRegistry.putIfAbsent(emf, new BeanletPersistenceContext(emf, true, false)) == null) {
+                    componentUnit.addDestroyHook(new Runnable() {
+                        public void run() {
+                            transactionRegistry.remove(emf);
+                        }
+                    });
+                }
+            }
+            return transactionRegistry.get(emf);
         }
         if (pctx.type() == PersistenceContextType.TRANSACTION) {
             if (!transactionRegistry.containsKey(emf)) {
-                if (transactionRegistry.putIfAbsent(emf, new BeanletPersistenceContext(emf, false)) == null) {
+                if (transactionRegistry.putIfAbsent(emf, new BeanletPersistenceContext(emf, false, false)) == null) {
                     componentUnit.addDestroyHook(new Runnable() {
                         public void run() {
                             transactionRegistry.remove(emf);
@@ -101,7 +113,7 @@ public final class BeanletPersistenceContext {
             return transactionRegistry.get(emf);
         } else if (pctx.type() == PersistenceContextType.EXTENDED) {
             if (!extendedRegistry.containsKey(emf)) {
-                if (extendedRegistry.putIfAbsent(emf, new BeanletPersistenceContext(emf, true)) == null) {
+                if (extendedRegistry.putIfAbsent(emf, new BeanletPersistenceContext(emf, false, true)) == null) {
                     componentUnit.addDestroyHook(new Runnable() {
                         public void run() {
                             extendedRegistry.remove(emf);
@@ -117,55 +129,37 @@ public final class BeanletPersistenceContext {
     }
 
     private final BeanletEntityManagerFactory emf;
-    private final boolean extended;
-    private final TransactionScopedEntityManager txem;
+    private final ContainerManagedEntityManager containerManaged;
     
     private BeanletPersistenceContext(BeanletEntityManagerFactory emf,
-            boolean extended) {
+            boolean resourceLocal, boolean extended) {
         this.emf = emf;
-        this.extended = extended;
-        if (!isExtended()) {
-            this.txem = new TransactionScopedEntityManager(emf);
+        if (resourceLocal) {
+            this.containerManaged = new ThreadLocalEntityManager(emf);
         } else {
-            this.txem = null;
+            if (!extended) {
+                this.containerManaged = new TransactionScopedEntityManager(emf);
+            } else {
+                this.containerManaged = null;
+            }
         }
     }
 
-    /**
-     * Returns {@code true} if this persistence context represents an extended
-     * persistence context. Otherwise, {@code false} is returned.
-     */
-    public boolean isExtended() {
-        return extended;
-    }
-    
     /**
      * Returns an {@code EntityManager} that can be passed to the client 
      * application. If {@code isExtended} returns {@code true}, this is an 
      * instance of {@code ExtendedEntityManager}, otherwise an instance of
      * {@code TransactionScopedEntityManager} is returned.
      */
-    public EntityManager createEntityManager() {
-        if (isExtended()) {
-            return ExtendedEntityManager.getInstance(emf);
-        } else {
-            return txem;
-        }
+    public ContainerManagedEntityManager getEntityManager() {
+        return containerManaged == null ? ExtendedEntityManager.getInstance(emf) : containerManaged;
     }
-    
+
     void preInvoke() {
-        if (isExtended()) {
-            ExtendedEntityManager.getInstance(emf).preInvoke();
-        } else {
-            txem.preInvoke();
-        }
+        getEntityManager().preInvoke();
     }
     
     void postInvoke() {
-        if (isExtended()) {
-            ExtendedEntityManager.getInstance(emf).postInvoke();
-        } else {
-            txem.postInvoke();
-        }
+        getEntityManager().postInvoke();
     }
 }

@@ -51,11 +51,11 @@ public final class ContainerManagedEntityManagerFactory implements
     }
 
     public EntityManager createEntityManager() {
-        return bpctx.createEntityManager();
+        return bpctx.getEntityManager();
     }
 
     public EntityManager createEntityManager(Map map) {
-        return bpctx.createEntityManager();
+        return bpctx.getEntityManager();
     }
     
     public boolean isOpen() {

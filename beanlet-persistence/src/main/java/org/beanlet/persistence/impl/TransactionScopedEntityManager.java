@@ -66,10 +66,10 @@ public final class TransactionScopedEntityManager extends
         ContainerManagedEntityManager {
 
     private final InternalJTAEntityManagerFactory jta;
-    private final InternalResourceLocalEntityManagerFactory resourceLocal;
+    private final InternalNonJTAEntityManagerFactory nonJTA;
     
     public TransactionScopedEntityManager(BeanletEntityManagerFactory emf) {
-        this.resourceLocal = new InternalResourceLocalEntityManagerFactory(emf);
+        this.nonJTA = new InternalNonJTAEntityManagerFactory(emf);
         this.jta = new InternalJTAEntityManagerFactory(emf);
     }
     
@@ -78,7 +78,7 @@ public final class TransactionScopedEntityManager extends
         if (jta.isTransactionActive()) {
             em = jta.createEntityManager();
         } else {
-            em = resourceLocal.createEntityManager();
+            em = nonJTA.createEntityManager();
         }
         return em;
     }    
@@ -86,17 +86,19 @@ public final class TransactionScopedEntityManager extends
     /**
      * This method has package private visibility.
      */
+    @Override
     void preInvoke() {
-        resourceLocal.preInvoke();
+        nonJTA.preInvoke();
         jta.preInvoke();
     }
     
     /**
      * This method has package private visibility.
      */
+    @Override
     void postInvoke() {
         jta.postInvoke();
-        resourceLocal.postInvoke();
+        nonJTA.postInvoke();
     }
     
     @Override
