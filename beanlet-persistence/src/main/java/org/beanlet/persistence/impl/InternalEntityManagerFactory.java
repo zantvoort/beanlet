@@ -78,18 +78,18 @@ class InternalEntityManagerFactory implements BeanletEntityManagerFactory {
     }
 
     public CriteriaBuilder getCriteriaBuilder() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return emf.getCriteriaBuilder();
     }
 
     public Metamodel getMetamodel() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return emf.getMetamodel();
     }
 
     public Map<String, Object> getProperties() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return emf.getProperties();
     }
 
     public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return emf.getPersistenceUnitUtil();
     }
 }
