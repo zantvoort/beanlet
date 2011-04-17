@@ -39,7 +39,7 @@ http://beanlet.org/schema/springframework http://beanlet.org/schema/springframew
         <proxy type="java.lang.Runnable"/>
         <!-- Configures the DemoInterceptor at class-level. -->
         <interceptors type="org.beanlet.demo.DemoInterceptor"/>
-        <!-- The beanlet complies to the Runnable interface by mapping the doIt
+        <!-- The beanlet complies to the Runnable interface by urlMapping the doIt
              method to the Runnable's run method. -->
         <operation method="doIt" name="run"/>
         <!-- The start- and stop-method must not be intercepted. -->

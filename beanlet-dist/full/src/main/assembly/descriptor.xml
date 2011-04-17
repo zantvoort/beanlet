@@ -18,8 +18,7 @@
             <excludes>
                 <exclude>asm:asm</exclude>
                 <exclude>cglib:cglib</exclude>
-                <exclude>javax.transaction:jta</exclude>
-                <exclude>javax.persistence:persistence-api</exclude>
+                <exclude>javax:*</exclude>
             </excludes>
             <unpack>false</unpack>
             <scope>provided</scope>
@@ -29,8 +28,7 @@
             <excludes>
                 <exclude>asm:asm</exclude>
                 <exclude>cglib:cglib</exclude>
-                <exclude>javax.transaction:jta</exclude>
-                <exclude>javax.persistence:persistence-api</exclude>
+                <exclude>javax:*</exclude>
             </excludes>
             <unpack>true</unpack>
             <scope>provided</scope>

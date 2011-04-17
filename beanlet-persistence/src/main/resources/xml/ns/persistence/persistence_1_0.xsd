@@ -118,12 +118,12 @@
 
               <!-- **************************************************** -->
 
-              <xsd:element name="mapping-file" type="xsd:string" 
+              <xsd:element name="urlMapping-file" type="xsd:string"
                            minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                   <xsd:documentation>
 
-                    File containing mapping information. Loaded as a resource 
+                    File containing urlMapping information. Loaded as a resource
                     by the persistence provider.
 
                   </xsd:documentation>
