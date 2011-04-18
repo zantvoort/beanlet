@@ -45,10 +45,10 @@ import javax.servlet.http.HttpSessionBindingListener;
  *
  * @author Leon van Zantvoort
  */
-public class HttpServletRequestLocal implements ServletRequestListener {
+public class RequestContextListenerImpl implements ServletRequestListener {
 
     private static final String SESSION_DESTROY_HOOK_NAME =
-            HttpServletRequestLocal.class.getName() + ".SESSION_DESTROY_HOOK";
+            RequestContextListenerImpl.class.getName() + ".SESSION_DESTROY_HOOK";
     
     private static final ThreadLocal<HttpServletRequest> local = 
             new ThreadLocal<HttpServletRequest>();
@@ -56,7 +56,7 @@ public class HttpServletRequestLocal implements ServletRequestListener {
     private static final Map<HttpServletRequest, Runnable> hooks =
             new IdentityHashMap<HttpServletRequest, Runnable>();
     
-    public HttpServletRequestLocal() {
+    public RequestContextListenerImpl() {
         BeanletApplicationContext.instance();
     }
 

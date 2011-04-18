@@ -103,7 +103,7 @@ public final class SessionBeanletObjectPoolImpl<T> implements
                 final Map<HttpSession, ObjectPool<ComponentObject<T>>> map =
                         pools.get(reference.weakReference());
                 assert map != null;
-                HttpServletRequest request = HttpServletRequestLocal.get();
+                HttpServletRequest request = RequestContextListenerImpl.get();
                 if (request == null) {
                     throw new ComponentCreationException(componentName, 
                             "No HTTP request active.");
@@ -122,7 +122,7 @@ public final class SessionBeanletObjectPoolImpl<T> implements
                     });
                     pool = tmp;
                     map.put(session, pool);
-                    HttpServletRequestLocal.setSessionDestroyHook(new Runnable() {
+                    RequestContextListenerImpl.setSessionDestroyHook(new Runnable() {
                         public void run() {
                             lock.lock();
                             try {
@@ -158,7 +158,7 @@ public final class SessionBeanletObjectPoolImpl<T> implements
             Map<HttpSession, ObjectPool<ComponentObject<T>>> map = pools.
                     get(reference);
             assert map != null;
-            HttpServletRequest request = HttpServletRequestLocal.get();
+            HttpServletRequest request = RequestContextListenerImpl.get();
             assert request != null;
             HttpSession session = request.getSession();
             ObjectPool<ComponentObject<T>> pool = map.get(session);
@@ -184,7 +184,7 @@ public final class SessionBeanletObjectPoolImpl<T> implements
                 Map<HttpSession, ObjectPool<ComponentObject<T>>> map = pools.
                         get(reference);
                 assert map != null;
-                HttpServletRequest request = HttpServletRequestLocal.get();
+                HttpServletRequest request = RequestContextListenerImpl.get();
                 assert request != null;
                 HttpSession session = request.getSession();
                 ObjectPool<ComponentObject<T>> pool = map.get(session);
