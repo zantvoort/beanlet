@@ -48,6 +48,7 @@ public final class BeanletConfigurationValidatorProviderImpl extends AbstractPro
                 new ArrayList<BeanletConfigurationValidator>();
         list.add(new RequestConfigurationValidatorImpl());
         list.add(new SessionConfigurationValidatorImpl());
+        list.add(new WebBeanletConfigurationValidatorImpl());
         return Collections.unmodifiableList(list);
     }
 }

@@ -71,6 +71,11 @@ public class BeanletComponentLifecycleProviderImpl extends AbstractProvider impl
                         }
                         Servlet servlet = (Servlet) componentFactory.create().getComponent();
                         ServletRegistration.Dynamic registration = servletContext.addServlet(webServlet.name(), servlet);
+                        if (registration == null) {
+                            throw new BeanletCreationException(configuration.getComponentName(),
+                                    "Servlet registration failed. Another servlet with servlet name " +
+                                            webServlet.name() + " might already be registered.");
+                        }
                         registration.addMapping(webServlet.value().length == 0 ? webServlet.urlPatterns() : webServlet.value());
                         Map<String, String> initParams = new HashMap<String, String>();
                         for (WebInitParam p : webServlet.initParams()) {
@@ -94,6 +99,11 @@ public class BeanletComponentLifecycleProviderImpl extends AbstractProvider impl
                         }
                         Filter filter = (Filter) componentFactory.create().getComponent();
                         FilterRegistration.Dynamic registration = servletContext.addFilter(webFilter.filterName(), filter);
+                        if (registration == null) {
+                            throw new BeanletCreationException(configuration.getComponentName(),
+                                    "Filter registration failed. Another filter with filter name " +
+                                            webFilter.filterName() + " might already be registered.");
+                        }
                         EnumSet<DispatcherType> dt = EnumSet.copyOf(Arrays.asList(webFilter.dispatcherTypes()));
                         registration.addMappingForServletNames(dt, true, webFilter.servletNames());
                         Map<String, String> initParams = new HashMap<String, String>();
