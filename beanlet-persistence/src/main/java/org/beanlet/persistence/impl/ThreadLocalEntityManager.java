@@ -86,6 +86,7 @@ public final class ThreadLocalEntityManager extends
                     tx.commit();
                 }
             } finally {
+                emLocal.remove();
                 em.close();
             }
         }
