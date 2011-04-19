@@ -16,7 +16,9 @@ import org.beanlet.BeanletApplicationException;
 /**
  * Add the following configuration to the web application's {@code web.xml} file
  * to support the {@code Request} and {@code Session} beanlet scopes.
- * 
+ * </br>
+ * Not required for Servlet 3.0 containers.
+ * </br>
  * <pre>
  * &lt;web-app&gt;
  *   ...

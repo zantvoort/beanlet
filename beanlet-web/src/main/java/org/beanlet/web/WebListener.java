@@ -59,10 +59,14 @@ import java.lang.annotation.Target;
  * @see org.beanlet.ScopeAnnotation
  * @author Leon van Zantvoort
  */
-@ScopeAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WebListener {
+
+    /**
+     * @return <code>true</code> if instance is created by Servlet container.
+     */
+    boolean createListener() default true;
 
     /**
      * @return description of the listener, if present

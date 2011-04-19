@@ -71,10 +71,14 @@ import java.lang.annotation.Target;
  * @see org.beanlet.ScopeAnnotation
  * @author Leon van Zantvoort
  */
-@ScopeAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WebServlet {
+
+    /**
+     * @return <code>true</code> if instance is created by Servlet container.
+     */
+    boolean createServlet() default true;
 
     /**
      * @return name of the Servlet

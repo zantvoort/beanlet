@@ -39,11 +39,9 @@ import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
 import org.beanlet.plugin.Injectant;
 import org.beanlet.web.WebFilter;
-import org.beanlet.web.WebServlet;
 import org.jargo.ComponentContext;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebInitParam;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -64,7 +62,7 @@ public class WebFilterDependencyInjectionFactoryImpl implements DependencyInject
         final TypeElement typeElement = TypeElement.instance(configuration.getType());
         final WebFilter annotation = configuration.getAnnotationDomain().getDeclaration(
                 WebFilter.class).getAnnotation(typeElement);
-        if (annotation != null) {
+        if (annotation != null && annotation.createFilter()) {
             Constructor<?> c = null;
             try {
                 c = configuration.getType().getConstructor();
@@ -98,16 +96,6 @@ public class WebFilterDependencyInjectionFactoryImpl implements DependencyInject
                     Class<Filter> cls = (Class<Filter>) typeElement.getType();
                     try {
                         final Filter filter = servletContext.createFilter(cls);
-                        FilterRegistration.Dynamic registration = servletContext.addFilter(annotation.filterName(), filter);
-                        EnumSet<DispatcherType> dt = EnumSet.copyOf(Arrays.asList(annotation.dispatcherTypes()));
-                        registration.addMappingForServletNames(dt, true, annotation.servletNames());
-                        Map<String, String> initParams = new HashMap<String, String>();
-                        for (WebInitParam p : annotation.initParams()) {
-                            initParams.put(p.name(), p.value());
-                        }
-                        registration.setInitParameters(initParams);
-                        registration.setAsyncSupported(annotation.asyncSupported());
-                        registration.addMappingForUrlPatterns(dt, true, annotation.urlPatterns());
                         return new Injectant<Object>() {
                             public boolean isCacheable() {
                                 return true;

@@ -31,15 +31,10 @@
 package org.beanlet.web.impl;
 
 import org.beanlet.BeanletCreationException;
-import org.beanlet.BeanletValidationException;
 import org.beanlet.BeanletWiringException;
-import org.beanlet.Stateful;
 import org.beanlet.annotation.ConstructorElement;
 import org.beanlet.annotation.Element;
-import org.beanlet.annotation.ElementAnnotation;
 import org.beanlet.annotation.TypeElement;
-import org.beanlet.common.AbstractDependencyInjectionFactory;
-import org.beanlet.common.InjectantImpl;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
@@ -47,13 +42,9 @@ import org.beanlet.plugin.Injectant;
 import org.beanlet.web.WebServlet;
 import org.jargo.ComponentContext;
 
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.annotation.WebInitParam;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -74,7 +65,7 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
         final TypeElement typeElement = TypeElement.instance(configuration.getType());
         final WebServlet annotation = configuration.getAnnotationDomain().getDeclaration(
                 WebServlet.class).getAnnotation(typeElement);
-        if (annotation != null) {
+        if (annotation != null && annotation.createServlet()) {
             Constructor<?> c = null;
             try {
                 c = configuration.getType().getConstructor();
@@ -108,15 +99,6 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
                     Class<Servlet> cls = (Class<Servlet>) typeElement.getType();
                     try {
                         final Servlet servlet = servletContext.createServlet(cls);
-                        ServletRegistration.Dynamic registration = servletContext.addServlet(annotation.name(), servlet);
-                        registration.addMapping(annotation.value().length == 0 ? annotation.urlPatterns() : annotation.value());
-                        Map<String, String> initParams = new HashMap<String, String>();
-                        for (WebInitParam p : annotation.initParams()) {
-                            initParams.put(p.name(), p.value());
-                        }
-                        registration.setInitParameters(initParams);
-                        registration.setAsyncSupported(annotation.asyncSupported());
-                        registration.setLoadOnStartup(annotation.loadOnStartup());
                         return new Injectant<Object>() {
                             public boolean isCacheable() {
                                 return true;

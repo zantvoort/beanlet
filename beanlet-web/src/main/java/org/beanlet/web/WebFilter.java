@@ -74,10 +74,15 @@ import java.lang.annotation.Target;
  * @see org.beanlet.ScopeAnnotation
  * @author Leon van Zantvoort
  */
-@ScopeAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WebFilter {
+
+    /**
+     * @return <code>true</code> if instance is created by Servlet container.
+     */
+    boolean createFilter() default true;
+
     /**
      * @return description of the Filter, if present
      */

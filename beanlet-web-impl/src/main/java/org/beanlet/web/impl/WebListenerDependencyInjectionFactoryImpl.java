@@ -38,14 +38,10 @@ import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
 import org.beanlet.plugin.Injectant;
 import org.beanlet.web.WebListener;
-import org.beanlet.web.WebServlet;
 import org.jargo.ComponentContext;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.annotation.WebInitParam;
 import java.util.*;
 
 /**
@@ -65,7 +61,7 @@ public class WebListenerDependencyInjectionFactoryImpl implements DependencyInje
         final TypeElement typeElement = TypeElement.instance(configuration.getType());
         final WebListener annotation = configuration.getAnnotationDomain().getDeclaration(
                 WebListener.class).getAnnotation(typeElement);
-        if (annotation != null) {
+        if (annotation != null && annotation.createListener()) {
             final ServletContext servletContext = WebHelper.getServletContext();
             DependencyInjection injection = new DependencyInjection() {
                 public Element getTarget() {
@@ -89,7 +85,6 @@ public class WebListenerDependencyInjectionFactoryImpl implements DependencyInje
                     Class<EventListener> cls = (Class<EventListener>) typeElement.getType();
                     try {
                         final EventListener listener = servletContext.createListener(cls);
-                        servletContext.addListener(listener);
                         return new Injectant<Object>() {
                             public boolean isCacheable() {
                                 return true;

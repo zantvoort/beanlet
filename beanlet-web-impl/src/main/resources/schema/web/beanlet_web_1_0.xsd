@@ -39,6 +39,7 @@
                         <xs:element ref="init-params" minOccurs="0" maxOccurs="1"/>
                     </xs:choice>
                 </xs:sequence>
+                <xs:attribute name="create-servlet" type="xs:boolean" use="optional"/>
                 <xs:attribute name="async-supported" type="xs:boolean" use="optional"/>
                 <xs:attribute name="description" type="xs:string" use="optional"/>
                 <xs:attribute name="display-name" type="xs:string" use="optional"/>
@@ -96,6 +97,7 @@
                         <xs:element ref="servlet-names" minOccurs="0" maxOccurs="1"/>
                     </xs:choice>
                 </xs:sequence>
+                <xs:attribute name="create-filter" type="xs:boolean" use="optional"/>
                 <xs:attribute name="async-supported" type="xs:boolean" use="optional"/>
                 <xs:attribute name="description" type="xs:string" use="optional"/>
                 <xs:attribute name="display-name" type="xs:string" use="optional"/>
@@ -124,6 +126,7 @@
     <xs:complexType name="listener-type">
         <xs:complexContent>
             <xs:extension base="bl:annotation-type">
+                <xs:attribute name="create-listener" type="xs:boolean" use="optional"/>
                 <xs:attribute name="description" type="xs:string" use="required"/>
             </xs:extension>
         </xs:complexContent>
