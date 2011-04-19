@@ -30,44 +30,36 @@
  */
 package org.beanlet.web.impl;
 
-import org.beanlet.BeanletApplicationContext;
+import org.beanlet.common.AbstractProvider;
+import org.beanlet.plugin.BeanletConfiguration;
+import org.beanlet.plugin.DependencyInjectionFactory;
+import org.beanlet.plugin.spi.DependencyInjectionFactoryProvider;
+import org.jargo.deploy.SequentialDeployable;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
+ *
  * @author Leon van Zantvoort
  */
-public final class RequestContextListenerImpl implements ServletRequestListener {
+public final class DependencyInjectionFactoryProviderImpl extends 
+        AbstractProvider implements DependencyInjectionFactoryProvider {
+    
+    public Sequence sequence(SequentialDeployable deployable) {
+        return Sequence.BEFORE;
+    }
 
-    private final ServletRequestListener listener;
-
-    public RequestContextListenerImpl() {
-        if (!WebConstants.isWebServletSupported()) {
-            BeanletApplicationContext.instance();
-            this.listener =  new RequestContextListener();
-        } else {
-            this.listener = new ServletRequestListener() {
-                public void requestDestroyed(ServletRequestEvent servletRequestEvent) {
-                }
-
-                public void requestInitialized(ServletRequestEvent servletRequestEvent) {
-                }
-            };
+    public List<DependencyInjectionFactory> getDependencyInjectionFactories(
+            BeanletConfiguration configuration) {
+        List<DependencyInjectionFactory> factories = 
+                new ArrayList<DependencyInjectionFactory>();
+        if (WebConstants.isWebServletSupported()) {
+            factories.add(new WebServletDependencyInjectionFactoryImpl(configuration));
+            factories.add(new WebFilterDependencyInjectionFactoryImpl(configuration));
+            factories.add(new WebListenerDependencyInjectionFactoryImpl(configuration));
         }
-    }
-
-    public void requestDestroyed(ServletRequestEvent event) {
-        listener.requestDestroyed(event);
-    }
-
-    public void requestInitialized(ServletRequestEvent event) {
-        listener.requestInitialized(event);
+        return Collections.unmodifiableList(factories);
     }
 }

@@ -99,7 +99,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
                 final Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map =
                         pools.get(reference.weakReference());
                 assert map != null;
-                final HttpServletRequest request = RequestContextListenerImpl.get();
+                final HttpServletRequest request = RequestContextListener.get();
                 if (request == null) {
                     throw new ComponentCreationException(componentName, 
                             "No HTTP request active.");
@@ -116,7 +116,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
                     });
                     pool = tmp;
                     map.put(request, pool);
-                    RequestContextListenerImpl.setRequestDestroyHook(new Runnable() {
+                    RequestContextListener.setRequestDestroyHook(new Runnable() {
                         public void run() {
                             lock.lock();
                             try {
@@ -152,7 +152,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
             Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
                     get(reference);
             assert map != null;
-            HttpServletRequest request = RequestContextListenerImpl.get();
+            HttpServletRequest request = RequestContextListener.get();
             assert request != null;
             ObjectPool<ComponentObject<T>> pool = map.get(request);
             assert pool != null;
@@ -177,7 +177,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
                 Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
                         get(reference);
                 assert map != null;
-                HttpServletRequest request = RequestContextListenerImpl.get();
+                HttpServletRequest request = RequestContextListener.get();
                 assert request != null;
                 ObjectPool<ComponentObject<T>> pool = map.get(request);
                 assert pool != null;

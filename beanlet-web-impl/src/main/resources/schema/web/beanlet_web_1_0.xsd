@@ -6,15 +6,16 @@
            xmlns:bl="http://beanlet.org/schema/beanlet"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <xs:import namespace="http://beanlet.org/schema/beanlet" schemaLocation="http://beanlet.org/schema/beanlet/beanlet_1_0.xsd"/>
-    
+    <xs:import namespace="http://beanlet.org/schema/beanlet"
+               schemaLocation="http://beanlet.org/schema/beanlet/beanlet_1_0.xsd"/>
+
     <xs:element name="request" type="request-type" substitutionGroup="bl:annotation"/>
     <xs:complexType name="request-type">
         <xs:complexContent>
             <xs:extension base="bl:annotation-type"/>
         </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:element name="session" type="session-type" substitutionGroup="bl:annotation"/>
     <xs:complexType name="session-type">
         <xs:complexContent>
@@ -23,5 +24,109 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    
+
+    <xs:element name="servlet" type="servlet-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="servlet-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element ref="url-pattern" minOccurs="0" maxOccurs="1"/>
+                        <xs:element ref="url-patterns" minOccurs="0" maxOccurs="1"/>
+                    </xs:choice>
+                    <xs:choice>
+                        <xs:element ref="init-param" minOccurs="0" maxOccurs="1"/>
+                        <xs:element ref="init-params" minOccurs="0" maxOccurs="1"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="async-supported" type="xs:boolean" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+                <xs:attribute name="display-name" type="xs:string" use="optional"/>
+                <xs:attribute name="large-icon" type="xs:string" use="optional"/>
+                <xs:attribute name="small-icon" type="xs:string" use="optional"/>
+                <xs:attribute name="load-on-startup" type="xs:int" use="optional"/>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="url-patterns">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="url-pattern" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="url-pattern">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="init-params">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="init-param" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="init-param">
+        <xs:complexType>
+            <xs:attribute name="key" type="xs:string" use="required"/>
+            <xs:attribute name="value" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="filter" type="filter-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="filter-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element ref="url-pattern" minOccurs="0" maxOccurs="1"/>
+                        <xs:element ref="url-patterns" minOccurs="0" maxOccurs="1"/>
+                    </xs:choice>
+                    <xs:choice>
+                        <xs:element ref="init-param" minOccurs="0" maxOccurs="1"/>
+                        <xs:element ref="init-params" minOccurs="0" maxOccurs="1"/>
+                    </xs:choice>
+                    <xs:choice>
+                        <xs:element ref="servlet-name" minOccurs="0" maxOccurs="1"/>
+                        <xs:element ref="servlet-names" minOccurs="0" maxOccurs="1"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="async-supported" type="xs:boolean" use="optional"/>
+                <xs:attribute name="description" type="xs:string" use="optional"/>
+                <xs:attribute name="display-name" type="xs:string" use="optional"/>
+                <xs:attribute name="large-icon" type="xs:string" use="optional"/>
+                <xs:attribute name="small-icon" type="xs:string" use="optional"/>
+                <xs:attribute name="filter-name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="servlet-names">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="servlet-name" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="servlet-name">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="listener" type="listener-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="listener-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:attribute name="description" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
 </xs:schema>

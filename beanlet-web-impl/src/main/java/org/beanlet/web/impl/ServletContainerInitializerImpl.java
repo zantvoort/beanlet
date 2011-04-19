@@ -28,61 +28,24 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.web;
+package org.beanlet.web.impl;
 
-import javax.servlet.Servlet;
-import java.util.Map;
+import org.beanlet.BeanletApplicationContext;
+
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import java.util.Set;
 
-public class ServletDefinition {
+public class ServletContainerInitializerImpl implements ServletContainerInitializer {
 
-    private Servlet servlet;
-
-    private String name;
-
-    private Set<String> mapping;
-
-    private Map<String, String> initParameters;
-
-    private boolean asyncSupported;
-
-    public Servlet getServlet() {
-        return servlet;
-    }
-
-    public void setServlet(Servlet servlet) {
-        this.servlet = servlet;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<String> getMapping() {
-        return mapping;
-    }
-
-    public void setMapping(Set<String> mapping) {
-        this.mapping = mapping;
-    }
-
-    public Map<String, String> getInitParameters() {
-        return initParameters;
-    }
-
-    public void setInitParameters(Map<String, String> initParameters) {
-        this.initParameters = initParameters;
-    }
-
-    public boolean isAsyncSupported() {
-        return asyncSupported;
-    }
-
-    public void setAsyncSupported(boolean asyncSupported) {
-        this.asyncSupported = asyncSupported;
+    public void onStartup(Set<Class<?>> classes, ServletContext ctx) throws ServletException {
+        WebHelper.setServletContext(ctx);
+        try {
+            ctx.addListener(new RequestContextListener());
+            BeanletApplicationContext.instance();
+        } finally {
+            WebHelper.setServletContext(null);
+        }
     }
 }

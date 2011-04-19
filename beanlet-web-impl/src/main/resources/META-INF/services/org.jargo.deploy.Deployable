@@ -1,4 +1,8 @@
+org.beanlet.web.impl.DependencyInjectionFactoryProviderImpl
 org.beanlet.web.impl.RequestBeanletObjectPoolProviderImpl
 org.beanlet.web.impl.SessionBeanletObjectPoolProviderImpl
+org.beanlet.web.impl.WebBeanletObjectFactoryProviderImpl
+org.beanlet.web.impl.WebServletElementAnnotationFactoryProviderImpl
+org.beanlet.web.impl.WebFilterElementAnnotationFactoryProviderImpl
 org.beanlet.web.impl.BeanletConfigurationValidatorProviderImpl
 org.beanlet.web.impl.MappedElementAnnotationFactoryProviderImpl

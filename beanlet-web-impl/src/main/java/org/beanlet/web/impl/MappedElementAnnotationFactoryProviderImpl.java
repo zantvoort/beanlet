@@ -43,6 +43,8 @@ import org.beanlet.plugin.ElementAnnotationFactory;
 import org.beanlet.plugin.spi.ElementAnnotationFactoryProvider;
 import org.beanlet.web.Request;
 import org.beanlet.web.Session;
+import org.beanlet.web.WebFilter;
+import org.beanlet.web.WebListener;
 
 /**
  *
@@ -57,6 +59,7 @@ public class MappedElementAnnotationFactoryProviderImpl extends AbstractProvider
         map = new HashMap<String, Class<? extends Annotation>>();
         map.put("request", Request.class);
         map.put("session", Session.class);
+        map.put("listener", WebListener.class);
     }
     
     public List<ElementAnnotationFactory> getElementAnnotationFactories() {
