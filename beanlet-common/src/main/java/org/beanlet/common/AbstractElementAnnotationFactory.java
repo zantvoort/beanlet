@@ -800,19 +800,16 @@ public abstract class AbstractElementAnnotationFactory<T extends Annotation>
         } else if (type.isAnnotation()) {
             o = null;
         } else if (type.isArray()) {
-            List<String> list = new ArrayList<String>();
-            StringTokenizer st = new StringTokenizer(str, ", \n\r\t");
-            while (st.hasMoreTokens()) {
-                list.add(st.nextToken());
-            }
+            String[] list = str.split("\"(?<!\\\\), ");
             Class<?> componentType = type.getComponentType();
             if (componentType.isPrimitive() ||
                     componentType.isEnum() || 
                     componentType.equals(Class.class) ||
                     componentType.equals(String.class)) {
-                o = Array.newInstance(componentType, list.size());
-                for (int i = 0; i < list.size(); i++) {
-                    ((Object[]) o)[i] = valueOf(list.get(i), componentType, 
+                int len = list.length;
+                o = Array.newInstance(componentType, len);
+                for (int i = 0; i < len; i++) {
+                    ((Object[]) o)[i] = valueOf(list[i], componentType,
                             loader);
                 }
             } else {
