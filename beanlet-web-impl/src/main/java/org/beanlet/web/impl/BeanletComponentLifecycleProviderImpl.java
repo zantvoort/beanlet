@@ -31,19 +31,17 @@
 package org.beanlet.web.impl;
 
 import org.beanlet.BeanletCreationException;
-import org.beanlet.BeanletWiringException;
+import org.beanlet.BeanletException;
 import org.beanlet.annotation.AnnotationDomain;
 import org.beanlet.annotation.TypeElement;
 import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.BeanletConfiguration;
-import org.beanlet.plugin.Injectant;
 import org.beanlet.web.WebFilter;
 import org.beanlet.web.WebListener;
 import org.beanlet.web.WebServlet;
 import org.jargo.ComponentConfiguration;
 import org.jargo.ComponentFactory;
 import org.jargo.ComponentLifecycle;
-import org.jargo.deploy.SequentialDeployable;
 import org.jargo.spi.ComponentLifecycleProvider;
 
 import javax.servlet.*;
@@ -66,24 +64,30 @@ public class BeanletComponentLifecycleProviderImpl extends AbstractProvider impl
             if (webServlet != null) {
                 list.add(new ComponentLifecycle<T>() {
                     public void onCreate(ComponentFactory<T> componentFactory) {
-                        if (servletContext == null) {
-                            throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                        try {
+                            if (servletContext == null) {
+                                throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                            }
+                            Servlet servlet = (Servlet) componentFactory.create().getComponent();
+                            ServletRegistration.Dynamic registration = servletContext.addServlet(webServlet.name(), servlet);
+                            if (registration == null) {
+                                throw new BeanletCreationException(configuration.getComponentName(),
+                                        "Servlet registration failed. Another servlet with servlet name " +
+                                                webServlet.name() + " might already be registered.");
+                            }
+                            registration.addMapping(webServlet.value().length == 0 ? webServlet.urlPatterns() : webServlet.value());
+                            Map<String, String> initParams = new HashMap<String, String>();
+                            for (WebInitParam p : webServlet.initParams()) {
+                                initParams.put(p.name(), p.value());
+                            }
+                            registration.setInitParameters(initParams);
+                            registration.setAsyncSupported(webServlet.asyncSupported());
+                            registration.setLoadOnStartup(webServlet.loadOnStartup());
+                        } catch (BeanletException e) {
+                            throw e;
+                        } catch (RuntimeException e) {
+                            throw new BeanletCreationException(configuration.getComponentName(), e);
                         }
-                        Servlet servlet = (Servlet) componentFactory.create().getComponent();
-                        ServletRegistration.Dynamic registration = servletContext.addServlet(webServlet.name(), servlet);
-                        if (registration == null) {
-                            throw new BeanletCreationException(configuration.getComponentName(),
-                                    "Servlet registration failed. Another servlet with servlet name " +
-                                            webServlet.name() + " might already be registered.");
-                        }
-                        registration.addMapping(webServlet.value().length == 0 ? webServlet.urlPatterns() : webServlet.value());
-                        Map<String, String> initParams = new HashMap<String, String>();
-                        for (WebInitParam p : webServlet.initParams()) {
-                            initParams.put(p.name(), p.value());
-                        }
-                        registration.setInitParameters(initParams);
-                        registration.setAsyncSupported(webServlet.asyncSupported());
-                        registration.setLoadOnStartup(webServlet.loadOnStartup());
                     }
 
                     public void onDestroy(ComponentFactory<T> componentFactory) {
@@ -94,25 +98,35 @@ public class BeanletComponentLifecycleProviderImpl extends AbstractProvider impl
             if (webFilter != null) {
                 list.add(new ComponentLifecycle<T>() {
                     public void onCreate(ComponentFactory<T> componentFactory) {
-                        if (servletContext == null) {
-                            throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                        try {
+                            if (servletContext == null) {
+                                throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                            }
+                            Filter filter = (Filter) componentFactory.create().getComponent();
+                            FilterRegistration.Dynamic registration = servletContext.addFilter(webFilter.filterName(), filter);
+                            if (registration == null) {
+                                throw new BeanletCreationException(configuration.getComponentName(),
+                                        "Filter registration failed. Another filter with filter name " +
+                                                webFilter.filterName() + " might already be registered.");
+                            }
+                            EnumSet<DispatcherType> dt = EnumSet.copyOf(Arrays.asList(webFilter.dispatcherTypes()));
+                            if (webFilter.urlPatterns().length > 0) {
+                                registration.addMappingForUrlPatterns(dt, true, webFilter.urlPatterns());
+                            }
+                            if (webFilter.servletNames().length > 0) {
+                                registration.addMappingForServletNames(dt, true, webFilter.servletNames());
+                            }
+                            Map<String, String> initParams = new HashMap<String, String>();
+                            for (WebInitParam p : webFilter.initParams()) {
+                                initParams.put(p.name(), p.value());
+                            }
+                            registration.setInitParameters(initParams);
+                            registration.setAsyncSupported(webFilter.asyncSupported());
+                        } catch (BeanletException e) {
+                            throw e;
+                        } catch (RuntimeException e) {
+                            throw new BeanletCreationException(configuration.getComponentName(), e);
                         }
-                        Filter filter = (Filter) componentFactory.create().getComponent();
-                        FilterRegistration.Dynamic registration = servletContext.addFilter(webFilter.filterName(), filter);
-                        if (registration == null) {
-                            throw new BeanletCreationException(configuration.getComponentName(),
-                                    "Filter registration failed. Another filter with filter name " +
-                                            webFilter.filterName() + " might already be registered.");
-                        }
-                        EnumSet<DispatcherType> dt = EnumSet.copyOf(Arrays.asList(webFilter.dispatcherTypes()));
-                        registration.addMappingForServletNames(dt, true, webFilter.servletNames());
-                        Map<String, String> initParams = new HashMap<String, String>();
-                        for (WebInitParam p : webFilter.initParams()) {
-                            initParams.put(p.name(), p.value());
-                        }
-                        registration.setInitParameters(initParams);
-                        registration.setAsyncSupported(webFilter.asyncSupported());
-                        registration.addMappingForUrlPatterns(dt, true, webFilter.urlPatterns());
                     }
 
                     public void onDestroy(ComponentFactory<T> componentFactory) {
@@ -123,11 +137,17 @@ public class BeanletComponentLifecycleProviderImpl extends AbstractProvider impl
             if (webListener != null) {
                 list.add(new ComponentLifecycle<T>() {
                     public void onCreate(ComponentFactory<T> componentFactory) {
-                        if (servletContext == null) {
-                            throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                        try {
+                            if (servletContext == null) {
+                                throw new BeanletCreationException(configuration.getComponentName(), "ServletContext not available.");
+                            }
+                            EventListener listener = (EventListener) componentFactory.create().getComponent();
+                            servletContext.addListener(listener);
+                        } catch (BeanletException e) {
+                            throw e;
+                        } catch (RuntimeException e) {
+                            throw new BeanletCreationException(configuration.getComponentName(), e);
                         }
-                        EventListener listener = (EventListener) componentFactory.create().getComponent();
-                        servletContext.addListener(listener);
                     }
 
                     public void onDestroy(ComponentFactory<T> componentFactory) {

@@ -37,6 +37,7 @@ import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.ElementAnnotationContext;
 import org.beanlet.plugin.ElementAnnotationFactory;
 import org.beanlet.plugin.spi.ElementAnnotationFactoryProvider;
+import org.beanlet.web.WebFilter;
 import org.beanlet.web.WebServlet;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,15 +62,15 @@ public final class WebFilterElementAnnotationFactoryProviderImpl extends
         xpath.setNamespaceContext(WebConstants.WEB_NAMESPACE_CONTEXT);
 
         ElementAnnotationFactory factory =
-                new AbstractElementAnnotationFactory<WebServlet>() {
+                new AbstractElementAnnotationFactory<WebFilter>() {
             public String getNamespaceURI() {
                 return WebConstants.WEB_NAMESPACE_URI;
             }
             public String getNodeName() {
-                return "servlet";
+                return "filter";
             }
-            public Class<WebServlet> annotationType() {
-                return WebServlet.class;
+            public Class<WebFilter> annotationType() {
+                return WebFilter.class;
             }
             public Object getValueFromNode(Node node, String elementName,
                     Class type, final Object parentValue,

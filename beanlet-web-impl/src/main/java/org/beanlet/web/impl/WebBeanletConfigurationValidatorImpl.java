@@ -39,6 +39,7 @@ import org.beanlet.web.WebFilter;
 import org.beanlet.web.WebServlet;
 
 import javax.servlet.*;
+import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionListener;
 import java.util.Arrays;
@@ -63,7 +64,7 @@ public final class WebBeanletConfigurationValidatorImpl implements
         if (webServlet != null) {
             if (!Servlet.class.isAssignableFrom(element.getType())) {
                 throw new BeanletValidationException(configuration.getComponentName(),
-                        webServlet.getClass().getSimpleName() + " annotation MAY only " +
+                        WebServlet.class.getSimpleName() + " annotation MAY only " +
                         "be applied to elements of type: '" + Servlet.class + "'.");
             }
 
@@ -72,12 +73,15 @@ public final class WebBeanletConfigurationValidatorImpl implements
         if (webFilter != null) {
             if (!Filter.class.isAssignableFrom(element.getType())) {
                 throw new BeanletValidationException(configuration.getComponentName(),
-                        webFilter.getClass().getSimpleName() + " annotation MAY only " +
+                        WebFilter.class.getSimpleName() + " annotation MAY only " +
                         "be applied to elements of type: '" + Filter.class + "'.");
             }
-
+            if (webFilter.urlPatterns().length > 0 && webFilter.servletNames().length > 0) {
+                throw new BeanletValidationException(configuration.getComponentName(),
+                        "Filter mapping must specify either a url-pattern or a servlet-name.");
+            }
         }
-        WebFilter webListener = domain.getDeclaration(WebFilter.class).getAnnotation(element);
+        WebListener webListener = domain.getDeclaration(WebListener.class).getAnnotation(element);
         if (webListener != null) {
             boolean match = false;
             for (Class<?> cls : WEB_LISTENER_CLASSES) {
@@ -88,7 +92,7 @@ public final class WebBeanletConfigurationValidatorImpl implements
             }
             if (!match) {
                 throw new BeanletValidationException(configuration.getComponentName(),
-                        webListener.getClass().getSimpleName() + " annotation MAY only " +
+                        WebListener.class.getSimpleName() + " annotation MAY only " +
                         "be applied to elements of types: '" + WEB_LISTENER_CLASSES + "'.");
             }
 
