@@ -28,37 +28,25 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.transaction;
+package org.beanlet.web;
 
-import javax.transaction.UserTransaction;
 import org.beanlet.BeanletStateException;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 /**
- * Provides access to the transaction runtime context of the beanlet instance.
+ * Provides access to the web runtime context of the beanlet instance.
  *
  * @author Leon van Zantvoort
  */
-public interface TransactionContext {
-    
+public interface WebContext {
+
     /**
-     * Mark the current transaction for rollback.
-     *
-     * @throws BeanletStateException if the current thread is not associated 
-     * with a transaction.
+     * Returns the current <code>ServletRequest</code>.
+     * @throws BeanletStateException
+     * @throws org.beanlet.BeanletStateException if the current thread is not associated
+     * with a servlet call.
      */
-    void setRollbackOnly() throws BeanletStateException;
-    
-    /**
-     * Test if the transaction has been marked for rollback only.
-     * @return <code>true</code> if the transaction has been marked for rollback only.
-     * @throws BeanletStateException if the current thread is not associated
-     * with a transaction.
-     */
-    boolean getRollbackOnly() throws BeanletStateException;
-    
-    /**
-     * Obtain the transaction demarcation interface.
-     * @throws BeanletStateException if no user transaction has been installed.
-     */
-    UserTransaction getUserTransaction() throws BeanletStateException;
+    ServletRequest getServletRequest() throws BeanletStateException;
 }

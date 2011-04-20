@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.jargo.ComponentReference;
 import org.jargo.ComponentCreationException;
@@ -58,7 +59,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
     private final boolean destroyOnDiscard;
     private final Lock lock;
     private final Map<ComponentReference<T>, 
-            Map<HttpServletRequest, ObjectPool<ComponentObject<T>>>> pools;
+            Map<ServletRequest, ObjectPool<ComponentObject<T>>>> pools;
     
     private ComponentObjectBuilder<T> builder;
     
@@ -68,7 +69,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
         this.lazy = lazy;
         this.destroyOnDiscard = destroyOnDiscard;
         this.lock = new ReentrantLock(true);
-        this.pools = new HashMap<ComponentReference<T>, Map<HttpServletRequest, 
+        this.pools = new HashMap<ComponentReference<T>, Map<ServletRequest,
                 ObjectPool<ComponentObject<T>>>>();
     }
 
@@ -96,13 +97,13 @@ public final class RequestBeanletObjectPoolImpl<T> implements
                 if (reference.isRemoved()) {
                     return null;
                 }
-                final Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map =
+                final Map<ServletRequest, ObjectPool<ComponentObject<T>>> map =
                         pools.get(reference.weakReference());
                 assert map != null;
-                final HttpServletRequest request = RequestContextListener.get();
-                if (request == null) {
+                final ServletRequest request = RequestContextListener.get();
+                if (request == null || !(request instanceof HttpServletRequest)) {
                     throw new ComponentCreationException(componentName, 
-                            "No HTTP request active.");
+                            "No http servlet request active.");
                 }
                 pool = map.get(request);
                 if (pool == null) {
@@ -149,10 +150,10 @@ public final class RequestBeanletObjectPoolImpl<T> implements
         boolean destroy = false;
         lock.lock();
         try {
-            Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
+            Map<ServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
                     get(reference);
             assert map != null;
-            HttpServletRequest request = RequestContextListener.get();
+            ServletRequest request = RequestContextListener.get();
             assert request != null;
             ObjectPool<ComponentObject<T>> pool = map.get(request);
             assert pool != null;
@@ -174,10 +175,10 @@ public final class RequestBeanletObjectPoolImpl<T> implements
         try {
             lock.lock();
             try {
-                Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
+                Map<ServletRequest, ObjectPool<ComponentObject<T>>> map = pools.
                         get(reference);
                 assert map != null;
-                HttpServletRequest request = RequestContextListener.get();
+                ServletRequest request = RequestContextListener.get();
                 assert request != null;
                 ObjectPool<ComponentObject<T>> pool = map.get(request);
                 assert pool != null;
@@ -203,7 +204,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
         try {
             assert reference.isValid();
             Object ok = pools.put(reference, new IdentityHashMap
-                    <HttpServletRequest, ObjectPool<ComponentObject<T>>>());
+                    <ServletRequest, ObjectPool<ComponentObject<T>>>());
             assert ok == null;
         } finally {
             lock.unlock();
@@ -217,7 +218,7 @@ public final class RequestBeanletObjectPoolImpl<T> implements
                 new ArrayList<ComponentObject<T>>();
         lock.lock();
         try {
-            Map<HttpServletRequest, ObjectPool<ComponentObject<T>>> map = 
+            Map<ServletRequest, ObjectPool<ComponentObject<T>>> map =
                     pools.get(reference);
             if (map != null) {
                 for (Iterator<ObjectPool<ComponentObject<T>>> i = map.values().

@@ -49,11 +49,11 @@ public final class RequestContextListener implements ServletRequestListener {
     private static final String SESSION_DESTROY_HOOK_NAME =
             RequestContextListener.class.getName() + ".SESSION_DESTROY_HOOK";
     
-    private static final ThreadLocal<HttpServletRequest> local = 
-            new ThreadLocal<HttpServletRequest>();
+    private static final ThreadLocal<ServletRequest> local =
+            new ThreadLocal<ServletRequest>();
     
-    private static final Map<HttpServletRequest, Runnable> hooks =
-            new IdentityHashMap<HttpServletRequest, Runnable>();
+    private static final Map<ServletRequest, Runnable> hooks =
+            new IdentityHashMap<ServletRequest, Runnable>();
 
     // Package visibility.
     RequestContextListener() {
@@ -79,7 +79,7 @@ public final class RequestContextListener implements ServletRequestListener {
         }
     }
     
-    public static HttpServletRequest get() {
+    public static ServletRequest get() {
         return local.get();
     }
     
@@ -87,7 +87,7 @@ public final class RequestContextListener implements ServletRequestListener {
      * @throws IllegalStateException if no request is active.
      */
     public static void setRequestDestroyHook(Runnable runnable) {
-        HttpServletRequest request = get();
+        ServletRequest request = get();
         if (request == null) {
             throw new IllegalStateException();
         }
@@ -100,11 +100,11 @@ public final class RequestContextListener implements ServletRequestListener {
      * @throws IllegalStateException if no request is active.
      */
     public static void setSessionDestroyHook(final Runnable runnable) {
-        HttpServletRequest request = get();
-        if (request == null) {
+        ServletRequest request = get();
+        if (request == null || !(request instanceof HttpServletRequest)) {
             throw new IllegalStateException();
         }
-        request.getSession().setAttribute(SESSION_DESTROY_HOOK_NAME, 
+        ((HttpServletRequest) request).getSession().setAttribute(SESSION_DESTROY_HOOK_NAME,
                 new HttpSessionBindingListener() {
             public void valueBound(HttpSessionBindingEvent event) {
             }

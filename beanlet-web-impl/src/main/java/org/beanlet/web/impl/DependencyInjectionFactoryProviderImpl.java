@@ -59,6 +59,7 @@ public final class DependencyInjectionFactoryProviderImpl extends
             factories.add(new WebServletDependencyInjectionFactoryImpl(configuration));
             factories.add(new WebFilterDependencyInjectionFactoryImpl(configuration));
             factories.add(new WebListenerDependencyInjectionFactoryImpl(configuration));
+            factories.add(new WebContextDependencyInjectionFactoryImpl(configuration));
         }
         return Collections.unmodifiableList(factories);
     }

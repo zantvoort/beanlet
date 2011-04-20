@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.jargo.ComponentReference;
@@ -103,12 +104,12 @@ public final class SessionBeanletObjectPoolImpl<T> implements
                 final Map<HttpSession, ObjectPool<ComponentObject<T>>> map =
                         pools.get(reference.weakReference());
                 assert map != null;
-                HttpServletRequest request = RequestContextListener.get();
-                if (request == null) {
+                ServletRequest request = RequestContextListener.get();
+                if (request == null || !(request instanceof HttpServletRequest)) {
                     throw new ComponentCreationException(componentName, 
-                            "No HTTP request active.");
+                            "No http servlet request active.");
                 }
-                final HttpSession session = request.getSession();
+                final HttpSession session = ((HttpServletRequest) request).getSession();
                 pool = map.get(session);
                 if (pool == null) {
                     final ObjectPool<ComponentObject<T>> tmp = reentrant ? 
@@ -158,15 +159,17 @@ public final class SessionBeanletObjectPoolImpl<T> implements
             Map<HttpSession, ObjectPool<ComponentObject<T>>> map = pools.
                     get(reference);
             assert map != null;
-            HttpServletRequest request = RequestContextListener.get();
+            ServletRequest request = RequestContextListener.get();
             assert request != null;
-            HttpSession session = request.getSession();
-            ObjectPool<ComponentObject<T>> pool = map.get(session);
-            assert pool != null;
-            destroy = !pool.freeInstance(object);
-            if (destroy) {
-                assert pool.isDestroyed();
-                pools.remove(reference);
+            if (request instanceof HttpServletRequest) {
+                HttpSession session = ((HttpServletRequest) request).getSession();
+                ObjectPool<ComponentObject<T>> pool = map.get(session);
+                assert pool != null;
+                destroy = !pool.freeInstance(object);
+                if (destroy) {
+                    assert pool.isDestroyed();
+                    pools.remove(reference);
+                }
             }
         } finally {
             lock.unlock();
@@ -184,14 +187,16 @@ public final class SessionBeanletObjectPoolImpl<T> implements
                 Map<HttpSession, ObjectPool<ComponentObject<T>>> map = pools.
                         get(reference);
                 assert map != null;
-                HttpServletRequest request = RequestContextListener.get();
+                ServletRequest request = RequestContextListener.get();
                 assert request != null;
-                HttpSession session = request.getSession();
-                ObjectPool<ComponentObject<T>> pool = map.get(session);
-                assert pool != null;
-                if (!pool.discardInstance(object)) {
-                    assert pool.isDestroyed();
-                    pools.remove(reference);
+                if (request instanceof HttpServletRequest) {
+                    HttpSession session = ((HttpServletRequest) request).getSession();
+                    ObjectPool<ComponentObject<T>> pool = map.get(session);
+                    assert pool != null;
+                    if (!pool.discardInstance(object)) {
+                        assert pool.isDestroyed();
+                        pools.remove(reference);
+                    }
                 }
             } finally {
                 lock.unlock();
