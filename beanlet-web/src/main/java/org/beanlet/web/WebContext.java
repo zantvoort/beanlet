@@ -44,7 +44,6 @@ public interface WebContext {
 
     /**
      * Returns the current <code>ServletRequest</code>.
-     * @throws BeanletStateException
      * @throws org.beanlet.BeanletStateException if the current thread is not associated
      * with a servlet call.
      */

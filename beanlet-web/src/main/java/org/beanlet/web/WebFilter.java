@@ -68,10 +68,33 @@ import java.lang.annotation.Target;
  *
  * <code>@WebFilter("/path/*")</code><br />
  * <code>public class AnExampleFilter implements Filter { ... </code><br />
+ *     
+ *     
+ * <p><h3>XML Representation</h3>The following xml-fragment shows how to express this annotation in xml.<br><pre><tt>&lt;beanlet type="com.acme.servlet.TestFilter"&gt;
+ *    <b>&lt;web:filter filter-name="testFilter" create-filter="true"&gt;
+ *        &lt;!--web:url-pattern value="/test/TestServlet"/--&gt;
+ *        &lt;web:init-param key="test-user" value="john"/&gt;
+ *        &lt;web:servlet-name value="TestServlet"/&gt;
+ *    &lt;/web:filter&gt;</b>
+ *&lt;/beanlet&gt;
  *
- * {@beanlet.annotation}
+ *&lt;beanlet type="com.acme.servlet.TestFilter"&gt;
+ *     <b>&lt;web:filter filter-name="testFilter"&gt;
+ *          &lt;!--&lt;web:url-patterns&gt;--&gt;
+ *              &lt;!--&lt;web:url-pattern value="/test/TestServlet"/&gt;--&gt;
+ *              &lt;!--&lt;web:url-pattern value="/test/ProductionServlet"/&gt;--&gt;
+ *          &lt;!--&lt;/web:url-patterns&gt;--&gt;
+ *          &lt;web:init-params&gt;
+ *              &lt;web:init-param key="test-user" value="john"/&gt;
+ *              &lt;web:init-param key="production-user" value="john"/&gt;
+ *          &lt;/web:init-params&gt;
+ *          &lt;web:servlet-names&gt;
+ *              &lt;web:servlet-name value="TestServlet"/&gt;
+ *              &lt;web:servlet-name value="ProductionServlet"/&gt;
+ *        &lt;/web:servlet-names&gt;
+ *    &lt;/web:filter&gt;</b>
+ *&lt;/beanlet&gt;</tt></pre>
  *
- * @see org.beanlet.ScopeAnnotation
  * @author Leon van Zantvoort
  */
 @Retention(RetentionPolicy.RUNTIME)

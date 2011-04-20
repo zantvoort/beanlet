@@ -66,9 +66,29 @@ import java.lang.annotation.Target;
  * <code>@WebServlet(name="TestServlet", urlPatterns={"/path", "/alt"}) <br />
  * public class TestServlet extends HttpServlet ... {</code><br />
  *
- * {@beanlet.annotation}
+ * <p><h3>XML Representation</h3>The following xml-fragment shows how to express this annotation in xml.<br><pre><tt>&lt;beanlet type="com.google.gwt.user.server.rpc.RemoteServiceServlet"&gt;
+ *    <b>&lt;web:servlet name="TestServlet" create-servlet="false"&gt;
+ *        &lt;web:url-pattern value="/test/TestServlet"/&gt;
+ *        &lt;web:init-param key="test-user" value="john"/&gt;
+ *    &lt;/web:servlet&gt;</b>
+ *    &lt;inject constructor="true" index="0"&gt;
+ *        &lt;beanlet type="com.acme.servlet.TestService"/&gt;
+ *    &lt;/inject&gt;
+ *&lt;/beanlet&gt;
  *
- * @see org.beanlet.ScopeAnnotation
+ *&lt;beanlet type="com.google.gwt.user.server.rpc.RemoteServiceServlet"&gt;
+ *    <b>&lt;web:servlet name="TestServlet" create-servlet="true"&gt;
+ *        &lt;web:url-patterns&gt;
+ *            &lt;web:url-pattern value="/test/TestServlet"/&gt;
+ *            &lt;web:url-pattern value="/test/ProductionServlet"/&gt;
+ *        &lt;/web:url-patterns&gt;
+ *        &lt;web:init-params&gt;
+ *            &lt;web:init-param key="test-user" value="john"/&gt;
+ *            &lt;web:init-param key="production-user" value="john"/&gt;
+ *        &lt;/web:init-params&gt;
+ *    &lt;/web:servlet&gt;</b>
+ *&lt;/beanlet&gt;</tt></pre>
+ *
  * @author Leon van Zantvoort
  */
 @Retention(RetentionPolicy.RUNTIME)
