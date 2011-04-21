@@ -1,6 +1,0 @@
-org.beanlet.persistence.impl.PersistencePropertyFactories
-org.beanlet.persistence.impl.DependencyInjectionFactoryProviderImpl
-org.beanlet.persistence.impl.EntityManagerInvocationInterceptorFactoryProviderImpl
-org.beanlet.persistence.impl.PersistenceMetaDataProviderImpl
-org.beanlet.persistence.impl.MappedElementAnnotationFactoryProviderImpl
-org.beanlet.persistence.impl.PersistenceContextElementAnnotationFactoryProviderImpl
