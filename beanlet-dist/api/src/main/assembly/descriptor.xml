@@ -21,6 +21,7 @@
                 <include>org.beanlet:beanlet-management</include>
                 <include>org.beanlet:beanlet-naming</include>
                 <include>org.beanlet:beanlet-web</include>
+                <include>org.beanlet:beanlet-persistence</include>
                 <include>org.beanlet:beanlet-springframework</include>
             </includes>
             <unpack>false</unpack>

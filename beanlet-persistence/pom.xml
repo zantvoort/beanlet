@@ -4,7 +4,7 @@
     <groupId>org.beanlet</groupId>
     <artifactId>beanlet-persistence</artifactId>
     <packaging>jar</packaging>
-    <version>0.7</version>
+    <version>0.1</version>
     <name>Beanlet Persistence Integration</name>
     <url>http://beanlet.org</url>
     <licenses>
@@ -14,20 +14,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <dependencies>
-        <dependency>
-            <groupId>org.beanlet</groupId>
-            <artifactId>beanlet-common</artifactId>
-            <version>0.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
     <reporting>
         <plugins>
             <plugin>

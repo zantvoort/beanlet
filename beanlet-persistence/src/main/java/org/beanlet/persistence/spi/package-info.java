@@ -28,32 +28,9 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.persistence.hibernate;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.beanlet.persistence.PersistencePropertiesFactory;
-import org.beanlet.persistence.spi.PersistencePropertiesFactoryProvider;
-import org.beanlet.common.AbstractProvider;
 
 /**
- *
- * @author Leon van Zantvoort
+ * Adds support for JPA 2.0 integration.
  */
-public final class HibernatePersistencePropertiesFactoryProvider extends AbstractProvider 
-        implements PersistencePropertiesFactoryProvider {
-    
-    public List<PersistencePropertiesFactory> getPersistencePropertiesFactories() {
-        return Collections.<PersistencePropertiesFactory>singletonList(new PersistencePropertiesFactory() {
-            public Map<?,?> getProperties() {
-                Map<Object, Object> map = new HashMap<Object, Object>();
-                map.put("javax.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
-                map.put("hibernate.transaction.manager_lookup_class", 
-                        "org.beanlet.persistence.hibernate.HibernateTransactionManagerLookup");
-                return Collections.unmodifiableMap(map);
-            }
-        });
-    }
-}
+package org.beanlet.persistence.spi;
+

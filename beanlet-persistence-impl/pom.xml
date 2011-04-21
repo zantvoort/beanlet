@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.beanlet</groupId>
-    <artifactId>beanlet-persistence-hibernate</artifactId>
+    <artifactId>beanlet-persistence-impl</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-rc3</version>
-    <name>Beanlet Hibernate Persistence Integration</name>
+    <version>0.7</version>
+    <name>Beanlet Persistence Integration Implementation</name>
     <url>http://beanlet.org</url>
     <licenses>
         <license>
@@ -19,19 +19,19 @@
             <groupId>org.beanlet</groupId>
             <artifactId>beanlet-persistence</artifactId>
             <version>0.1</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.beanlet</groupId>
             <artifactId>beanlet-common</artifactId>
             <version>0.1</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>3.6.1.Final</version>
-            <scope>provided</scope>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>6.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <reporting>
@@ -57,8 +57,8 @@
         </snapshotRepository>
         <site>
             <id>beanlet-site</id>
-            <name>Beanlet Hibernate Persistence Integration Site</name>
-            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-persistence-hibernate</url>
+            <name>Beanlet Persistence Integration Site</name>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-persistence-impl</url>
         </site>
     </distributionManagement>    
     <repositories>
@@ -71,6 +71,11 @@
             <id>beanlet-snapshot-repository</id>
             <name>Beanlet Maven Snapshot Repository</name>
             <url>http://beanlet.org/maven-snapshot</url>
+        </repository>
+        <repository>
+            <id>java.net2</id>
+            <name>Repository hosting the jee6 artifacts</name>
+            <url>http://download.java.net/maven/2</url>
         </repository>
     </repositories>
     <build>

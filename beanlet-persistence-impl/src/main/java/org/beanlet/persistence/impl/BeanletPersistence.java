@@ -87,7 +87,7 @@ public final class BeanletPersistence {
             PersistenceUnitInfo unitInfo, Map<?, ?> map) {
 
         Map<Object, Object> properties = new HashMap<Object, Object>();
-        properties.putAll(PersistencePropertyFactories.getInstance().getProperties());
+        properties.putAll(PersistencePropertiesFactory.getInstance().getProperties());
         properties.putAll(map);
         
         // start by loading a provider explicitly specified in properties. The spec

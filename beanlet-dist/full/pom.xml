@@ -87,7 +87,7 @@
                                 <unjar dest="${project.build.directory}/ant/beanlet-naming-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-naming-impl*.jar"/></unjar>
                                 <unjar dest="${project.build.directory}/ant/beanlet-web-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-web-impl*.jar"/></unjar>
                                 <unjar dest="${project.build.directory}/ant/beanlet-springframework-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-springframework-impl*.jar"/></unjar>
-                                <unjar dest="${project.build.directory}/ant/beanlet-persistence"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-persistence*.jar"/></unjar>
+                                <unjar dest="${project.build.directory}/ant/beanlet-persistence-impl"><fileset dir="${project.build.directory}/${project.build.finalName}-bin.dir/packed/" includes="beanlet-persistence-impl*.jar"/></unjar>
                                 <concat destfile="${project.build.directory}/${project.build.finalName}-bin.dir/unpacked/META-INF/services/org.jargo.deploy.Deployable" fixlastline="true">
                                     <fileset dir="${project.build.directory}/ant" includes="**/META-INF/services/org.jargo.deploy.Deployable"/>
                                 </concat>

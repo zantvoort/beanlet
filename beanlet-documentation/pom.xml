@@ -40,6 +40,7 @@
         <module>../beanlet-management</module>
         <module>../beanlet-naming</module>
         <module>../beanlet-web</module>
+        <module>../beanlet-persistence</module>
         <module>../beanlet-springframework</module>
     </modules>
     <reporting>

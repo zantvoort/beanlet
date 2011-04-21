@@ -112,6 +112,12 @@
         <dependency>
             <groupId>org.beanlet</groupId>
             <artifactId>beanlet-persistence</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.beanlet</groupId>
+            <artifactId>beanlet-persistence-impl</artifactId>
             <version>0.7</version>
             <scope>provided</scope>
         </dependency>
