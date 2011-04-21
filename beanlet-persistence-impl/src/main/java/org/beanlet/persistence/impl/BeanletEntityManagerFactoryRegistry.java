@@ -59,7 +59,7 @@ public final class BeanletEntityManagerFactoryRegistry {
 
     private static BeanletEntityManagerFactory createEntityManagerFactory(
             BeanletPersistenceUnitInfo unitInfo, final Map<?, ?> map) {
-        EntityManagerFactory emf = BeanletPersistence.
+        EntityManagerFactory emf = PersistenceHelper.
                 createContainerEntityManagerFactory(unitInfo, map);
         if (emf == null) {
             throw new PersistenceException("EntityManagerFactory not available " +

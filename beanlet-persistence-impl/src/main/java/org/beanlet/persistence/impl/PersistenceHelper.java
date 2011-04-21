@@ -50,10 +50,10 @@ import javax.persistence.spi.PersistenceUnitInfo;
  *
  * @author Leon van Zantvoort
  */
-public final class BeanletPersistence {
+public final class PersistenceHelper {
     
     private static final Logger logger = Logger.getLogger(
-            BeanletPersistence.class.getName());
+            PersistenceHelper.class.getName());
     
     static final String PERSISTENCE_PROVIDER_PROPERTY = "javax.persistence.provider";
     static final String PERSISTENCE_PROVIDER_SERVICE = "META-INF/services/"
@@ -77,7 +77,7 @@ public final class BeanletPersistence {
      * using the given properties.
      *
      * @param unitInfo persistence unit info object.
-     * @param props Additional properties to use when creating the factory. The values of
+     * @param map Additional properties to use when creating the factory. The values of
      *            these properties override any values that may have been configured
      *            elsewhere.
      * @return The factory that creates EntityManagers configured according to the
