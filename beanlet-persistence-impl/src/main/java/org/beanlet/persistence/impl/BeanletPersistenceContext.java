@@ -159,7 +159,7 @@ public final class BeanletPersistenceContext {
         getEntityManager().preInvoke();
     }
     
-    void postInvoke() {
-        getEntityManager().postInvoke();
+    void postInvoke(boolean commit) {
+        getEntityManager().postInvoke(commit);
     }
 }

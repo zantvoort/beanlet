@@ -305,7 +305,7 @@ public final class ExtendedEntityManager extends ContainerManagedEntityManager {
      * This method has package private visibility.
      */
     @Override
-    void postInvoke() {
+    void postInvoke(boolean commit) {
         // Do nothing.
     }
     

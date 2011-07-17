@@ -75,12 +75,12 @@ public final class ThreadLocalEntityManager extends
     }
 
     @Override
-    void postInvoke() {
+    void postInvoke(boolean commit) {
         if (ixLocal.get().decrementAndGet() == 0) {
             EntityManager em = getEntityManager();
             try {
                 EntityTransaction tx = em.getTransaction();
-                if (tx.getRollbackOnly()) {
+                if (!commit || tx.getRollbackOnly()) {
                     tx.rollback();
                 } else {
                     tx.commit();

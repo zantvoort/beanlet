@@ -153,7 +153,7 @@ abstract class ContainerManagedEntityManager implements EntityManager {
 
     abstract void preInvoke();
 
-    abstract void postInvoke();
+    abstract void postInvoke(boolean commit);
     
     public void clear() {
         getEntityManager().clear();

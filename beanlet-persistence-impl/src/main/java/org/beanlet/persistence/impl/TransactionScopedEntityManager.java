@@ -96,7 +96,7 @@ public final class TransactionScopedEntityManager extends
      * This method has package private visibility.
      */
     @Override
-    void postInvoke() {
+    void postInvoke(boolean commit) {
         jta.postInvoke();
         nonJTA.postInvoke();
     }

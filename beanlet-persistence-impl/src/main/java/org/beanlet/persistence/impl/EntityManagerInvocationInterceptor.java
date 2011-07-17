@@ -56,14 +56,18 @@ public final class EntityManagerInvocationInterceptor implements
     }
     
     public Object intercept(InvocationContext ctx) throws Exception {
+        boolean commit = true;
         try {
             for (BeanletPersistenceContext pctx : contexts) {
                 pctx.preInvoke();
             }
             return ctx.proceed();
+        } catch (RuntimeException e) {
+            commit = false;
+            throw e;
         } finally {
             for (BeanletPersistenceContext pctx : contexts) {
-                pctx.postInvoke();
+                pctx.postInvoke(commit);
             }
         }
     }

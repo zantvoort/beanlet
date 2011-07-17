@@ -282,7 +282,7 @@ public final class TransactionInvocationInterceptor implements
     
     public Object intercept(InvocationContext ctx) throws Exception {
         Transaction transaction = null;
-        boolean commit = false;
+        boolean commit = true;
         try {
             if (transactionManager != null) {
                 log("Intercepting " + ctx.getInvocation().getMethod().getName() +
@@ -292,8 +292,10 @@ public final class TransactionInvocationInterceptor implements
                 transaction = null;
             }
             Object result = ctx.proceed();
-            commit = true;
             return result;
+        } catch (RuntimeException e) {
+            commit = false;
+            throw e;
         } finally {
             if (transactionManager != null) {
                 postTransaction(transaction, commit);
