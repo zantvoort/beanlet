@@ -97,33 +97,44 @@ public final class WebServletElementAnnotationFactoryProviderImpl extends
                         return s;
                     }
                 } else if (elementName.equals("init-params")) {
-                    NodeList keys = (NodeList) xpath.evaluate(
+                    NodeList names = (NodeList) xpath.evaluate(
                             "./:init-param/@name", node, XPathConstants.NODESET);
                     NodeList values = (NodeList) xpath.evaluate(
                             "./:init-param/@value", node, XPathConstants.NODESET);
-                    if (keys.getLength() == 0) {
-                        keys = (NodeList) xpath.evaluate(
+                    if (names.getLength() == 0) {
+                        names = (NodeList) xpath.evaluate(
                                 "./:init-params/:init-param/@name", node, XPathConstants.NODESET);
                         values = (NodeList) xpath.evaluate(
                                 "./:init-params/:init-param/@value", node, XPathConstants.NODESET);
                     }
 
-                    assert keys.getLength() == values.getLength();
+                    assert names.getLength() == values.getLength();
 
-                    int len = keys.getLength();
+                    int len = names.getLength();
                     WebInitParam[] params = new WebInitParam[len];
                     for (int i = 0; i < len; i++) {
-                        final String key = keys.item(i).getNodeValue();
+                        final String name = names.item(i).getNodeValue();
                         final String value = values.item(i).getNodeValue();
+                        final String description;
+                        Node d = (Node) xpath.evaluate("../@description", names.item(i),
+                                XPathConstants.NODE);
+                        if (d == null) {
+                            description = "";
+                        } else {
+                            description = d.getNodeValue();
+                        }
+
                         params[i] = AnnotationProxy.newProxyInstance(
                                 WebInitParam.class, ctx.getClassLoader(),
                                 new AnnotationValueResolver() {
                             public Object getValue(Method method, ClassLoader loader) throws Throwable {
                                 final Object o;
-                                if (method.getName().equals("key")) {
-                                    o = key;
+                                if (method.getName().equals("name")) {
+                                    o = name;
                                 } else if (method.getName().equals("value")) {
                                     o = value;
+                                } else if (method.getName().equals("description")) {
+                                    o = description;
                                 } else {
                                     o = method.getDefaultValue();
                                 }
