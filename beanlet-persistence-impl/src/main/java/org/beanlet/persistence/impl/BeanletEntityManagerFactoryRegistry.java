@@ -33,13 +33,16 @@ package org.beanlet.persistence.impl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceProperty;
 import javax.persistence.PersistenceUnit;
+
 import org.jargo.ComponentUnit;
 
 /**
@@ -50,12 +53,17 @@ public final class BeanletEntityManagerFactoryRegistry {
     
     // Do not mix container and application factories to prevent clients from
     // closing container factories.
-    private static final ConcurrentMap<BeanletPersistenceUnitInfo, 
-            BeanletEntityManagerFactory> containerRegistry = new ConcurrentHashMap
+    private static final Map<BeanletPersistenceUnitInfo,
+            BeanletEntityManagerFactory> containerRegistry = new HashMap
             <BeanletPersistenceUnitInfo, BeanletEntityManagerFactory>();
-    private static final ConcurrentMap<BeanletPersistenceUnitInfo, 
-            BeanletEntityManagerFactory> applicationRegistry = new ConcurrentHashMap
+    private static final Map<BeanletPersistenceUnitInfo,
+            BeanletEntityManagerFactory> applicationRegistry = new HashMap
             <BeanletPersistenceUnitInfo, BeanletEntityManagerFactory>();
+
+    // Locking introduced, as 3CPO can run into deadlocks in the previous optimistic approach.
+    private static final Lock lock = new ReentrantLock();
+    private static final Map<BeanletPersistenceUnitInfo, ReadWriteLock> containerLockMap = new HashMap<BeanletPersistenceUnitInfo, ReadWriteLock>();
+    private static final Map<BeanletPersistenceUnitInfo, ReadWriteLock> applicationLockMap = new HashMap<BeanletPersistenceUnitInfo, ReadWriteLock>();
 
     private static BeanletEntityManagerFactory createEntityManagerFactory(
             BeanletPersistenceUnitInfo unitInfo, final Map<?, ?> map) {
@@ -74,22 +82,43 @@ public final class BeanletEntityManagerFactoryRegistry {
                 BeanletPersistenceUnitInfoFactory.getInstance(componentUnit);
         final BeanletPersistenceUnitInfo unitInfo = factory.getPersistenceUnitInfo(
                 unit.unitName());
-        if (!applicationRegistry.containsKey(unitInfo)) {
-            final BeanletEntityManagerFactory emf = createEntityManagerFactory(unitInfo, Collections.emptyMap());
-            BeanletEntityManagerFactory tmp = applicationRegistry.putIfAbsent(unitInfo, emf);
-            if (tmp != null) {
-                // tmp is also returned on registry.get(unitInfo).
-                emf.close();
-            } else {
-                componentUnit.addDestroyHook(new Runnable() {
-                    public void run() {
-                        applicationRegistry.remove(unitInfo);
-                        emf.close();
-                    }
-                });
+        lock.lock();
+        ReadWriteLock rwLock;
+        try {
+            rwLock = applicationLockMap.get(unitInfo);
+            if (rwLock == null) {
+                rwLock = new ReentrantReadWriteLock();
+                applicationLockMap.put(unitInfo, rwLock);
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        rwLock.readLock().lock();
+        BeanletEntityManagerFactory emf = applicationRegistry.get(unitInfo);
+        rwLock.readLock().unlock();
+        if (emf == null) {
+            try {
+                rwLock.writeLock().lockInterruptibly();
+                emf = applicationRegistry.get(unitInfo);
+                if (emf == null) {
+                    emf = createEntityManagerFactory(unitInfo, Collections.emptyMap());
+                    applicationRegistry.put(unitInfo, emf);
+                    componentUnit.addDestroyHook(new Runnable() {
+                        public void run() {
+                            applicationLockMap.remove(unitInfo);
+                            applicationRegistry.remove(unitInfo).close();
+                        }
+                    });
+                }
+            } catch (InterruptedException e) {
+                throw new PersistenceException(e);
+            } finally {
+                rwLock.writeLock().unlock();
             }
         }
-        return applicationRegistry.get(unitInfo);
+        assert emf != null;
+        return emf;
     }
     
     public static BeanletEntityManagerFactory getInstance(PersistenceContext pctx,
@@ -101,22 +130,43 @@ public final class BeanletEntityManagerFactoryRegistry {
         }
         BeanletPersistenceUnitInfoFactory factory = 
                 BeanletPersistenceUnitInfoFactory.getInstance(componentUnit);
-        BeanletPersistenceUnitInfo unitInfo = factory.getPersistenceUnitInfo(
+        final BeanletPersistenceUnitInfo unitInfo = factory.getPersistenceUnitInfo(
                 pctx.unitName());
-        if (!containerRegistry.containsKey(unitInfo)) {
-            final BeanletEntityManagerFactory emf = createEntityManagerFactory(unitInfo, map);
-            BeanletEntityManagerFactory tmp = containerRegistry.putIfAbsent(unitInfo, emf);
-            if (tmp != null) {
-                // tmp is also returned on registry.get(unitInfo).
-                emf.close();
-            } else {
-                componentUnit.addDestroyHook(new Runnable() {
-                    public void run() {
-                        emf.close();
-                    }
-                });
+        lock.lock();
+        ReadWriteLock rwLock;
+        try {
+            rwLock = containerLockMap.get(unitInfo);
+            if (rwLock == null) {
+                rwLock = new ReentrantReadWriteLock();
+                containerLockMap.put(unitInfo, rwLock);
+            }
+        } finally {
+            lock.unlock();
+        }
+        rwLock.readLock().lock();
+        BeanletEntityManagerFactory emf = containerRegistry.get(unitInfo);
+        rwLock.readLock().unlock();
+        if (emf == null) {
+            try {
+                rwLock.writeLock().lockInterruptibly();
+                emf = containerRegistry.get(unitInfo);
+                if (emf == null) {
+                    emf = createEntityManagerFactory(unitInfo, map);
+                    containerRegistry.put(unitInfo, emf);
+                    componentUnit.addDestroyHook(new Runnable() {
+                        public void run() {
+                            containerLockMap.remove(unitInfo);
+                            containerRegistry.remove(unitInfo).close();
+                        }
+                    });
+                }
+            } catch (InterruptedException e) {
+                throw new PersistenceException(e);
+            } finally {
+                rwLock.writeLock().unlock();
             }
         }
-        return containerRegistry.get(unitInfo);
+        assert emf != null;
+        return emf;
     }
 }
