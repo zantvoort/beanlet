@@ -36,30 +36,48 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Beanlets implementing this annotation can act as a factory.</p>
+ * <p>Applied to static methods or static fields to denote a factory.</p>
  *
+ * <p><h3>Constructor Constraints</h3>
+ * The constructor on which the {@code StaticFactory} annotation is applied MUST fulfill all
+ * of the following criteria:
+ * <ul>
+ * <li>The constructor MUST NOT have any parameters.
+ * <li>The constructor MAY throw a checked exception.
+ * <li>The constructor on which {@code StaticFactory} is applied MAY be {@code public},
+ * {@code protected}, package private or {@code private}.
+ * </ul>
+ * </p>
  * <p><h3>Method Constraints</h3>
- * The method on which the {@code Factory} annotation is applied MUST fulfill all
+ * The method on which the {@code StaticFactory} annotation is applied MUST fulfill all
  * of the following criteria:
  * <ul>
  * <li>The method MUST NOT have any parameters.
- * <li>The return type of the method MAY NOT be {@code void}
+ * <li>The return type of the method MUST NOT be {@code void}.
  * <li>The method MAY throw a checked exception.
- * <li>The method on which {@code Factory} is applied MAY be {@code public}, 
+ * <li>The method on which {@code StaticFactory} is applied MAY be {@code public},
  * {@code protected}, package private or {@code private}. 
- * <li>The method MUST NOT be {@code static}.
+ * <li>The method MUST be {@code static}.
  * <li>The method MAY be {@code final}. 
  * </ul>
  * </p>
- * 
+ * <p><h3>Field Constraints</h3>
+ * The field on which the {@code Factory} annotation is applied MUST fulfill all
+ * of the following criteria:
+ * <ul>
+  * <li>The field on which {@code StaticFactory} is applied MAY be {@code public},
+ * {@code protected}, package private or {@code private}.
+ * <li>The field MUST be {@code static}.
+ * <li>The field MAY be {@code final}.
+ * </ul>
+ * </p>
+ *
  * {@beanlet.annotation}
  *
- * @see FactoryBeanlet
  * @author Leon van Zantvoort
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Factory {
+@Target({ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD})
+public @interface StaticFactory {
 
-    String description() default "";
 }

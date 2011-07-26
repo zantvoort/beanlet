@@ -344,6 +344,13 @@
         </xs:complexContent>
     </xs:complexType>
     
+    <xs:element name="static-factory" type="static-factory-type" substitutionGroup="annotation"/>
+    <xs:complexType name="static-factory-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:element name="inject" type="inject-type" substitutionGroup="annotation"/>
     <xs:complexType name="inject-type">
         <xs:complexContent>

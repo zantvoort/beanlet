@@ -58,11 +58,10 @@ public interface DependencyInjection {
      * not available.
      */
     Set<String> getDependencies() throws BeanletWiringException;
-    
+
     /**
      * Returns the injectant, or {@code null} if no injectant was found for the
-     * specified context. Let the injectant return {@code null} to inject a 
-     * {@code null} value.
+     * specified context. Return {@code null} to inject a {@code null} value.
      */
     Injectant<?> getInjectant(ComponentContext<?> ctx) throws 
             BeanletWiringException;

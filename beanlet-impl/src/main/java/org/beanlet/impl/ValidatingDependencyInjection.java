@@ -31,9 +31,8 @@
 package org.beanlet.impl;
 
 import static java.lang.annotation.ElementType.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+
+import java.lang.reflect.*;
 import java.util.Set;
 import org.beanlet.BeanletTypeMismatchException;
 import org.beanlet.BeanletWiringException;
@@ -90,41 +89,62 @@ public class ValidatingDependencyInjection implements DependencyInjection {
         if (injectant != null) {
             Object o = injectant.getObject();
             Element target = getTarget();
-            Class<?> type = getType(target);
-            if (o == null) {
-                if (type.isPrimitive()) {
-                    throw new BeanletWiringException(beanletName,
-                            getMember(target), 
-                            "Primitive cannot be injected with null value.");
+            if (injectant.isStatic()) {
+                switch (target.getElementType()) {
+                    case CONSTRUCTOR:
+                        Constructor c = ((ConstructorElement) target).getConstructor();
+                        assert c.getParameterTypes().length == 0;
+                        break;
+                    case METHOD:
+                        Method m = ((MethodElement) target).getMethod();
+                        assert m.getParameterTypes().length == 0;
+                        assert Modifier.isStatic(m.getModifiers());
+                        assert !m.getReturnType().equals(Void.TYPE);
+                        break;
+                    case FIELD:
+                        Field f = ((FieldElement) target).getField();
+                        assert Modifier.isStatic(f.getModifiers());
+                        break;
+                    default:
+                        assert false;
                 }
             } else {
-                final boolean match;
-                Class<?> injectantType = o.getClass();
-                if (type.isPrimitive()) {
-                    if (Boolean.TYPE.equals(type)) {
-                        match = injectantType.equals(Boolean.class);
-                    } else if (Byte.TYPE.equals(type)) {
-                        match = injectantType.equals(Byte.class);
-                    } else if (Short.TYPE.equals(type)) {
-                        match = injectantType.equals(Short.class);
-                    } else if (Integer.TYPE.equals(type)) {
-                        match = injectantType.equals(Integer.class);
-                    } else if (Long.TYPE.equals(type)) {
-                        match = injectantType.equals(Long.class);
-                    } else if (Float.TYPE.equals(type)) {
-                        match = injectantType.equals(Float.class);
-                    } else if (Double.TYPE.equals(type)) {
-                        match = injectantType.equals(Double.class);
-                    } else {
-                        assert false : type;
-                        match = false;
+                Class<?> type = getType(target);
+                if (o == null) {
+                    if (type.isPrimitive()) {
+                        throw new BeanletWiringException(beanletName,
+                                getMember(target),
+                                "Primitive cannot be injected with null value.");
                     }
                 } else {
-                    match = type.isAssignableFrom(injectantType);
-                }
-                if (!match) {
-                    throw new BeanletTypeMismatchException(beanletName,
-                            getMember(target), type, injectantType);
+                    final boolean match;
+                    Class<?> injectantType = o.getClass();
+                    if (type.isPrimitive()) {
+                        if (Boolean.TYPE.equals(type)) {
+                            match = injectantType.equals(Boolean.class);
+                        } else if (Byte.TYPE.equals(type)) {
+                            match = injectantType.equals(Byte.class);
+                        } else if (Short.TYPE.equals(type)) {
+                            match = injectantType.equals(Short.class);
+                        } else if (Integer.TYPE.equals(type)) {
+                            match = injectantType.equals(Integer.class);
+                        } else if (Long.TYPE.equals(type)) {
+                            match = injectantType.equals(Long.class);
+                        } else if (Float.TYPE.equals(type)) {
+                            match = injectantType.equals(Float.class);
+                        } else if (Double.TYPE.equals(type)) {
+                            match = injectantType.equals(Double.class);
+                        } else {
+                            assert false : type;
+                            match = false;
+                        }
+                    } else {
+                        match = type.isAssignableFrom(injectantType);
+                    }
+                    if (!match) {
+                        throw new BeanletTypeMismatchException(beanletName,
+                                getMember(target), type, injectantType);
+                    }
                 }
             }
         }

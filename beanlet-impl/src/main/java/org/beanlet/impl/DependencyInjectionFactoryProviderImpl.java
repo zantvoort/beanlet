@@ -49,7 +49,7 @@ public final class DependencyInjectionFactoryProviderImpl extends
             BeanletConfiguration configuration) {
         List<DependencyInjectionFactory> factories = 
                 new ArrayList<DependencyInjectionFactory>();
-        
+
         factories.add(new ValueDependencyInjectionFactoryImpl(configuration));
         factories.add(new LoggerDependencyInjectionFactoryImpl(configuration));
         factories.add(new BeanletMetaDataDependencyInjectionFactoryImpl(configuration));
@@ -62,6 +62,8 @@ public final class DependencyInjectionFactoryProviderImpl extends
         factories.add(new WireByNameDependencyInjectionFactoryImpl(configuration));
         factories.add(new WireByTypeDependencyInjectionFactoryImpl(configuration));
         
+        factories.add(new StaticFactoryDependencyInjectionFactoryImpl(configuration));
+
         return Collections.unmodifiableList(factories);
     }
 }

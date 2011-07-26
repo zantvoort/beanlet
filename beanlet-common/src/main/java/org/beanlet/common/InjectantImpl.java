@@ -41,7 +41,8 @@ public final class InjectantImpl<T> implements Injectant<T> {
     
     private final T injectant;
     private final boolean cacheable;
-    
+    private final boolean isStatic;
+
     public InjectantImpl() {
         this(null);
     }
@@ -49,17 +50,26 @@ public final class InjectantImpl<T> implements Injectant<T> {
     public InjectantImpl(T injectant) {
         this(injectant, false);
     }
-    
+
     public InjectantImpl(T injectant, boolean cacheable) {
-        this.injectant = injectant;
-        this.cacheable = cacheable;
+        this(injectant, cacheable, false);
     }
 
-    public T getObject() throws BeanletWiringException {
+    public InjectantImpl(T injectant, boolean cacheable, boolean isStatic) {
+        this.injectant = injectant;
+        this.cacheable = cacheable;
+        this.isStatic = isStatic;
+    }
+
+    public T getObject() {
         return injectant;
     }
     
     public boolean isCacheable() {
         return cacheable;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
     }
 }

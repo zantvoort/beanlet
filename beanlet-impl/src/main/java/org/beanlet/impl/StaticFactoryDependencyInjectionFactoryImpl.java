@@ -30,44 +30,52 @@
  */
 package org.beanlet.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.beanlet.Inject;
 import org.beanlet.StaticFactory;
 import org.beanlet.annotation.Element;
 import org.beanlet.annotation.ElementAnnotation;
-import org.beanlet.common.AbstractProvider;
+import org.beanlet.common.AbstractDependencyInjectionFactory;
+import org.beanlet.common.InjectantImpl;
 import org.beanlet.plugin.BeanletConfiguration;
-import org.beanlet.plugin.DependencyInjectionFactory;
-import org.beanlet.common.DependencyInjectionFactoryTerminator;
-import org.beanlet.plugin.spi.DependencyInjectionFactoryProvider;
-import org.jargo.deploy.SequentialDeployable;
+import org.beanlet.plugin.Injectant;
+import org.jargo.ComponentContext;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Leon van Zantvoort
  */
-public final class DependencyInjectionFactoryTerminatorProviderImpl extends 
-        AbstractProvider implements DependencyInjectionFactoryProvider {
+public final class StaticFactoryDependencyInjectionFactoryImpl extends
+        AbstractDependencyInjectionFactory<StaticFactory> {
+
+    public StaticFactoryDependencyInjectionFactoryImpl(
+            BeanletConfiguration<?> configuration) {
+        super(configuration);
+    }
     
-    public Sequence sequence(SequentialDeployable deployable) {
-        return Sequence.AFTER;
+    public Class<StaticFactory> annotationType() {
+        return StaticFactory.class;
+    }
+    
+    public boolean isSupported(ElementAnnotation<? extends Element, StaticFactory> ea) {
+        return true;
+    }
+    
+    public Set<String> getDependencies(
+            ElementAnnotation<? extends Element, StaticFactory> ea) {
+        return Collections.emptySet();
     }
 
-    public List<DependencyInjectionFactory> getDependencyInjectionFactories(
-            BeanletConfiguration<?> configuration) {
-        List<DependencyInjectionFactory> factories = new ArrayList<DependencyInjectionFactory>();
-        factories.add(new DependencyInjectionFactoryTerminator<Inject>(configuration,
-                Inject.class) {
-            @Override 
-            public boolean isOptional(
-                ElementAnnotation<? extends Element, Inject> ea) {
-                return ea.getAnnotation().optional();
-            }
-        });
-        factories.add(new DependencyInjectionFactoryTerminator<StaticFactory>(configuration,
-                StaticFactory.class));
-        return Collections.unmodifiableList(factories);
+    public boolean isOptional(ElementAnnotation<? extends Element, StaticFactory> ea) {
+        return false;
+    }
+
+    public Injectant<?> getInjectant(
+            ElementAnnotation<? extends Element, StaticFactory> ea,
+            ComponentContext<?> ctx) {
+        return new InjectantImpl<Object>(null, false, true);
     }
 }

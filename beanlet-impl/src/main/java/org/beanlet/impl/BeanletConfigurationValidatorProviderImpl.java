@@ -49,6 +49,7 @@ public final class BeanletConfigurationValidatorProviderImpl extends AbstractPro
         list.add(new BeanletScopeConfigurationValidatorImpl());
         list.add(new AttributeBeanletConfigurationValidatorImpl());
         list.add(new FactoryBeanletConfigurationValidatorImpl());
+        list.add(new StaticFactoryBeanletConfigurationValidatorImpl());
         list.add(new InjectBeanletConfigurationValidatorImpl());
         list.add(new WiringBeanletConfigurationValidatorImpl());
         list.add(new PostConstructBeanletConfigurationValidatorImpl());

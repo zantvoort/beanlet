@@ -37,9 +37,17 @@ package org.beanlet.plugin;
 public interface Injectant<T> {
 
     /**
+     * Returns {@code true} if result of {@getObject} can be reused.
      */
     boolean isCacheable();
-    
+
+    /**
+     * Returns {@code true} if this  injectant is used for static factories (e.g., zero argument constructors,
+     * static zero argument method or static field).
+     */
+    boolean isStatic();
+
+
     /**
      * Returns the object that is to be injected into the beanlet.
      */

@@ -36,11 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import org.beanlet.BeanletValidationException;
 import org.beanlet.Inject;
-import org.beanlet.annotation.ConstructorElement;
-import org.beanlet.annotation.Element;
-import org.beanlet.annotation.FieldElement;
-import org.beanlet.annotation.MethodElement;
-import org.beanlet.annotation.MethodParameterElement;
+import org.beanlet.annotation.*;
 import org.beanlet.common.AbstractBeanletConfigurationValidator;
 import org.beanlet.plugin.BeanletConfiguration;
 
@@ -81,35 +77,51 @@ public final class InjectBeanletConfigurationValidatorImpl extends
 
     public boolean validate(BeanletConfiguration configuration, 
             Element element) throws BeanletValidationException {
+        AnnotationDomain domain = configuration.getAnnotationDomain();
         switch (element.getElementType()) {
             case CONSTRUCTOR:
                 Constructor c = ((ConstructorElement) element).getConstructor();
+                if (c.getParameterTypes().length == 0) {
+                    throw new BeanletValidationException(configuration.getComponentName(),
+                            "Constructor specifies zero parameters. Use @StaticFactory instead: '" + c + "'.");
+                }
                 if (c.getParameterTypes().length > 1) {
                     throw new BeanletValidationException(configuration.getComponentName(),
-                            "Constructor specifies more than one parameter: '" + c + "'.");
+                            "Constructor specifies multiple parameters, define @Inject at constructor parameters instead: '" + c + "'.");
                 }
                 break;
             case METHOD:
                 Method m = ((MethodElement) element).getMethod();
                 if (Modifier.isStatic(m.getModifiers())) {
+                    if (m.getParameterTypes().length == 0) {
+                        throw new BeanletValidationException(configuration.getComponentName(),
+                                "Static factory method specifies zero parameters. Use @StaticFactory instead: '" + m + "'.");
+                    }
                     if (m.getParameterTypes().length > 1) {
                         throw new BeanletValidationException(configuration.getComponentName(),
-                                "Factory method specifies more than one parameter: '" + m + "'.");
+                                "Static factory method specifies multiple parameters, define @Inject at method parameters instead: '" + m + "'.");
                     }
                     if (m.getReturnType().equals(Void.TYPE)) {
                         throw new BeanletValidationException(configuration.getComponentName(),
-                                "Factory method MUST specify a return type: '" + m + "'.");
+                                "Static factory method MUST specify a return type: '" + m + "'.");
                     }
                 } else {
+                    if (m.getParameterTypes().length == 0) {
+                        throw new BeanletValidationException(configuration.getComponentName(),
+                                "Zero argument method not supported for @Inject: '" + m + "'.");
+                    }
                     if (m.getParameterTypes().length != 1) {
                         throw new BeanletValidationException(configuration.getComponentName(),
-                                "Method does not specify exactly one parameter: '" + m + "'.");
+                                "Method specifies multiple parameters. Define @Inject at method parameters instead: '" + m + "'.");
                     }
                 }
                 break;
             case FIELD:
                 Field f = ((FieldElement) element).getField();
-                if (!Modifier.isStatic(f.getModifiers())) {
+                if (Modifier.isStatic(f.getModifiers())) {
+                    throw new BeanletValidationException(configuration.getComponentName(),
+                            "Static factory field not supported for @Inject. Use @StaticFactory instead: '" + f + "'.");
+                } else {
                     if (Modifier.isFinal(f.getModifiers())) {
                         // Disallowed, although it is supported by reflection.
                         throw new BeanletValidationException(configuration.getComponentName(),
@@ -123,7 +135,7 @@ public final class InjectBeanletConfigurationValidatorImpl extends
                     if (Modifier.isStatic(pm.getModifiers())) {
                         if (pm.getReturnType().equals(Void.TYPE)) {
                             throw new BeanletValidationException(configuration.getComponentName(),
-                                    "Factory method MUST specify a return type: '" + pm + "'.");
+                                    "Static factory method MUST specify a return type: '" + pm + "'.");
                         }
                     }
                 }

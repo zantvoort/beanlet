@@ -37,27 +37,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.beanlet.AroundInvoke;
-import org.beanlet.Factory;
-import org.beanlet.ProxyMethod;
-import org.beanlet.ExcludeClassInterceptors;
-import org.beanlet.ExcludeDefaultInterceptors;
-import org.beanlet.IgnoreDependency;
-import org.beanlet.Lazy;
-import org.beanlet.Operation;
-import org.beanlet.PostConstruct;
-import org.beanlet.PreDestroy;
-import org.beanlet.Remove;
-import org.beanlet.Retention;
-import org.beanlet.Execute;
-import org.beanlet.Schedule;
-import org.beanlet.Start;
-import org.beanlet.Stateful;
-import org.beanlet.Stateless;
-import org.beanlet.Stop;
-import org.beanlet.Vanilla;
-import org.beanlet.Attribute;
-import org.beanlet.Wiring;
+
+import org.beanlet.*;
 import org.beanlet.common.AbstractElementAnnotationFactory;
 import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.ElementAnnotationFactory;
@@ -95,6 +76,7 @@ public final class MappedElementAnnotationFactoryProviderImpl extends AbstractPr
         map.put("vanilla", Vanilla.class);
         map.put("wiring", Wiring.class);
         map.put("attribute", Attribute.class);
+        map.put("static-factory", StaticFactory.class);
     }
     
     public List<ElementAnnotationFactory> getElementAnnotationFactories() {

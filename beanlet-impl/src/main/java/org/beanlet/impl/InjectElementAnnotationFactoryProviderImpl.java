@@ -95,7 +95,7 @@ public final class InjectElementAnnotationFactoryProviderImpl extends
                 
                 if (element instanceof FieldElement) {
                     if (Modifier.isStatic(element.getMember().getModifiers())) {
-                        return true;
+                        return false;   // Replaced by @StaticFactory
                     } else {
                         destinationType = ((FieldElement) element).getField().
                                 getType();
@@ -105,7 +105,7 @@ public final class InjectElementAnnotationFactoryProviderImpl extends
                             getParameterTypes();
                     if (types.length == 0) {
                         if (Modifier.isStatic(element.getMember().getModifiers())) {
-                            return true;
+                            return false;   // Replaced by @StaticFactory
                         } else {
                             return false;
                         }
@@ -126,7 +126,7 @@ public final class InjectElementAnnotationFactoryProviderImpl extends
                     if (types.length == 1) {
                         destinationType = types[0];
                     } else {
-                        return true;
+                        return false;   // Replaced by @StaticFactory
                     }
                 } else if (element instanceof ConstructorParameterElement) {
                     // PENDING: add check.

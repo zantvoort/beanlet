@@ -535,6 +535,9 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
                         public boolean isCacheable() {
                             return injectant.isCacheable();
                         }
+                        public boolean isStatic() {
+                            return injectant.isStatic();
+                        }
                         public Object getObject() {
                             try {
                                 return injectant.getObject();

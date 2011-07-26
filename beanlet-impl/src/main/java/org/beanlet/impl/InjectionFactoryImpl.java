@@ -144,6 +144,9 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                 Constructor c = ((ConstructorElement) first.getTarget()).
                         getConstructor();
                 if (c.getParameterTypes().length == 0) {
+                    Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
+                    assert injectant.isStatic();
+                    assert injectant.getObject() == null;
                     injection = new ConstructorInjectionImpl<T>(c);
                 } else if (c.getParameterTypes().length == 1) {
                     Injectant<?> injectant = first.getInjectant(ctx);
@@ -161,11 +164,14 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
             case METHOD:
                 if (injections.size() > 1) {
                     throw new BeanletValidationException(beanletName,
-                            "Found multiple injection elements: " + 
+                            "Found multiple constructor injections or factory elements: " +
                             toElementString(injections) + ".");
                 }
                 Method m = ((MethodElement) first.getTarget()).getMethod();
                 if (m.getParameterTypes().length == 0) {
+                    Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
+                    assert injectant.isStatic();
+                    assert injectant.getObject() == null;
                     injection = new FactoryMethodInjectionImpl<T>(m);
                 } else if (m.getParameterTypes().length == 1) {
                     Injectant<?> injectant = first.getInjectant(ctx);
@@ -186,7 +192,7 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                             getTarget()).getConstructor();
                     if (injections.size() != pc.getParameterTypes().length) {
                         throw new BeanletValidationException(beanletName,
-                                "Not all constructor parameters support injection: '" + pc + "'.");
+                                "Incorrect count of constructor injections or factory elements: '" + pc + "'.");
                     }
                     Object[] args = new Object[injections.size()];
                     for (DependencyInjection i : injections) {
@@ -211,7 +217,7 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                             getMethod();
                     if (injections.size() != mc.getParameterTypes().length) {
                         throw new BeanletValidationException(beanletName,
-                                "Not all factory method parameters support injection: '" + mc + "'.");
+                                "Incorrect count of method injection or factory elements: '" + mc + "'.");
                     }
                     Object[] args = new Object[injections.size()];
                     for (DependencyInjection i : injections) {
@@ -236,10 +242,13 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
             case FIELD:
                 if (injections.size() > 1) {
                     throw new BeanletValidationException(beanletName,
-                            "Found multiple injection elements: " +
+                            "Found multiple constructor injections or factory elements: " +
                             toElementString(injections) + ".");
                 }
                 Field f = ((FieldElement) first.getTarget()).getField();
+                Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
+                assert injectant.isStatic();
+                assert injectant.getObject() == null;
                 injection = new FactoryFieldInjectionImpl<T>(f);
                 break;
             default:
@@ -329,7 +338,7 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                     } else {
                         Object beanlet = reference.execute(event);
                         while (beanlet instanceof FactoryBeanlet) {
-                            beanlet = ((FactoryBeanlet) beanlet);
+                            beanlet = ((FactoryBeanlet) beanlet).getObject();
                         }
                         object = beanlet;
                     }
