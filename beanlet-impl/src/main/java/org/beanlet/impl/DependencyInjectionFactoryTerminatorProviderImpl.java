@@ -66,8 +66,6 @@ public final class DependencyInjectionFactoryTerminatorProviderImpl extends
                 return ea.getAnnotation().optional();
             }
         });
-        factories.add(new DependencyInjectionFactoryTerminator<StaticFactory>(configuration,
-                StaticFactory.class));
         return Collections.unmodifiableList(factories);
     }
 }
