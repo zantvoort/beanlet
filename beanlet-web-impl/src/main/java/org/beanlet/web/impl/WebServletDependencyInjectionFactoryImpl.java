@@ -35,6 +35,7 @@ import org.beanlet.BeanletWiringException;
 import org.beanlet.annotation.ConstructorElement;
 import org.beanlet.annotation.Element;
 import org.beanlet.annotation.TypeElement;
+import org.beanlet.common.InjectantImpl;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
@@ -99,15 +100,7 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
                     Class<Servlet> cls = (Class<Servlet>) typeElement.getType();
                     try {
                         final Servlet servlet = servletContext.createServlet(cls);
-                        return new Injectant<Object>() {
-                            public boolean isCacheable() {
-                                return true;
-                            }
-
-                            public Object getObject() {
-                                return servlet;
-                            }
-                        };
+                        return new InjectantImpl<Object>(servlet, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 typeElement.getMember(), e);

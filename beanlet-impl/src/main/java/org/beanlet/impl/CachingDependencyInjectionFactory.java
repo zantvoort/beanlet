@@ -74,9 +74,9 @@ public final class CachingDependencyInjectionFactory implements
                 list.add(new CachingDependencyInjection(injection));
             }
             list = Collections.unmodifiableList(list);
-            constructorCache.put(cls, list);
+            constructorCache.putIfAbsent(cls, list);
         }
-        return list;
+        return constructorCache.get(cls);
     }
 
     public List<DependencyInjection> getSetterDependencyInjections(
@@ -89,9 +89,9 @@ public final class CachingDependencyInjectionFactory implements
                 list.add(new CachingDependencyInjection(injection));
             }
             list = Collections.unmodifiableList(list);
-            setterCache.put(cls, list);
+            setterCache.putIfAbsent(cls, list);
         }
-        return list;
+        return setterCache.get(cls);
     }
     
     public List<DependencyInjection> getFactoryDependencyInjections(
@@ -105,8 +105,8 @@ public final class CachingDependencyInjectionFactory implements
                 list.add(new CachingDependencyInjection(injection));
             }
             list = Collections.unmodifiableList(list);
-            factoryCache.put(key, list);
+            factoryCache.putIfAbsent(key, list);
         }
-        return list;
+        return factoryCache.get(key);
     }
 }

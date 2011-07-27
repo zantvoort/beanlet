@@ -42,6 +42,7 @@ import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.Injectant;
 import org.beanlet.common.InjectantImpl;
 import org.jargo.ComponentReference;
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 
 /**
  *
@@ -49,7 +50,7 @@ import org.jargo.ComponentReference;
  */
 public final class WireByInfoDependencyInjectionFactoryImpl extends
         WiringDependencyInjectionFactory {
-    
+
     public WireByInfoDependencyInjectionFactoryImpl(
             BeanletConfiguration<?> configuration) {
         super(configuration);

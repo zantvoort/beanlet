@@ -235,8 +235,7 @@ public final class ValueDependencyInjectionFactoryImpl extends
                 if (type.isArray()) {
                     componentType = type.getComponentType();
                 } else {
-                    Class<?> tmp = getCollectionValueType(ea.getElement());
-                    componentType = tmp == null ? Object.class : tmp;
+                    componentType = getCollectionValueType(ea.getElement());
                 }
 
                 Collection c;
@@ -379,13 +378,7 @@ public final class ValueDependencyInjectionFactoryImpl extends
                 }
                 if (!map.empty()) {
                     Class<?> keyType = getMapKeyType(ea.getElement());
-                    if (keyType == null) {
-                        keyType = Object.class;
-                    }
                     Class<?> valueType = getMapValueType(ea.getElement());
-                    if (valueType == null) {
-                        valueType = Object.class;
-                    }
                     if (m instanceof Properties) {
                         // Special case.
                         if (keyType.equals(Object.class)) {
@@ -437,7 +430,7 @@ public final class ValueDependencyInjectionFactoryImpl extends
                 return new InjectantImpl<Object>(m, false);
             } else {
                 assert false;
-                return null;
+                return new InjectantImpl<Object>(null, false);
             }
         } catch (ClassCastException e) {
             throw new BeanletWiringException(name, ea.getElement().getMember(), 

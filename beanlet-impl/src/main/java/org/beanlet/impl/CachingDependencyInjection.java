@@ -31,6 +31,8 @@
 package org.beanlet.impl;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.beanlet.BeanletWiringException;
 import org.beanlet.annotation.Element;
 import org.beanlet.plugin.DependencyInjection;
@@ -47,14 +49,16 @@ public class CachingDependencyInjection implements DependencyInjection {
     private final boolean optional;
     private final Set<String> dependencies;
     
-    private Injectant injectant;
-    private BeanletWiringException exception;
+    private final AtomicReference<Injectant> injectant;
+    private final AtomicReference<BeanletWiringException> exception;
     
     public CachingDependencyInjection(DependencyInjection injection) {
         this.injection = injection;
         this.target = injection.getTarget();
         this.optional = injection.isOptional();
         this.dependencies = injection.getDependencies();
+        this.injectant = new AtomicReference<Injectant>();
+        this.exception = new AtomicReference<BeanletWiringException>();
     }
     
     public boolean isOptional() {
@@ -71,22 +75,25 @@ public class CachingDependencyInjection implements DependencyInjection {
     
     public Injectant<?> getInjectant(ComponentContext<?> ctx) throws 
             BeanletWiringException {
-        if (injectant != null) {
-            return injectant;
+        Injectant i = injectant.get();
+        if (i != null) {
+            return i;
         }
-        if (exception != null) {
-            throw exception;
+        BeanletWiringException e = exception.get();
+        if (e != null) {
+            throw e;
         }
         try {
-            Injectant tmp = injection.getInjectant(ctx);
-            if (tmp != null && tmp.isCacheable()) {
+            i = injection.getInjectant(ctx);
+            if (i != null && i.isCacheable()) {
                 // Don't store negatives.
-                injectant = tmp;
+                injectant.compareAndSet(null, i);
+                return injectant.get();
             }
-            return tmp;
-        } catch (BeanletWiringException e) {
-            exception = e;
-            throw e;
+            return i;
+        } catch (BeanletWiringException ex) {
+            exception.compareAndSet(null, ex);
+            throw exception.get();
         }
     }
 }

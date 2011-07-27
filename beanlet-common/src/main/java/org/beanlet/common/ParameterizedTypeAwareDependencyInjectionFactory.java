@@ -68,136 +68,220 @@ public abstract class ParameterizedTypeAwareDependencyInjectionFactory extends
         this.beanletName = configuration.getComponentName();
     }
 
-    public Class<Inject> annotationType() {
+    public final Class<Inject> annotationType() {
         return Inject.class;
     }
     
-    public boolean isOptional(ElementAnnotation<? extends Element, Inject> ea) {
+    public final boolean isOptional(ElementAnnotation<? extends Element, Inject> ea) {
         return ea.getAnnotation().optional();
     }
     
     @Override 
-    public String getName(Inject inject) {
+    protected final String getName(Inject inject) {
         return inject.name();
     }
     
     @Override
-    public Class<?> getType(Inject inject) {
+    protected final Class<?> getType(Inject inject) {
         return inject.type();
     }
-    
-    public Class<?> getTypeClass(Type t) {
-        if (t instanceof WildcardType) {
-            return getTypeClass(((WildcardType) t).getUpperBounds()[0]);
-        } else {
-            return (Class) t;
-        }
-    }
-    
-    public Type getParameterizedType(Element element) {
-        return getParameterizedType(element, 0);
-    }
-    
-    public Type getParameterizedType(Element element, int typeArgument) {
+
+    /**
+     * Helper method.
+     */
+    protected final Type getParameterizedType(Element element, int typeArgument) {
         return getParameterizedType(element, typeArgument, null);
     }
-    
-    public Type getParameterizedType(Element element, Class<?> requiredType) {
-        return getParameterizedType(element, 0, requiredType);
-    }
-    
+
     /**
+     * Helper method.
+     *
      * @param element element to read parameterized type from.
      * @param typeArgument index of type array.
      * @param requiredType validates whether element specifies this type, or
      * {@code null} to skip validation.
-     * @throws BeanletValidationException if element is not of required type.
+     * @throws org.beanlet.BeanletValidationException if element is not of required type.
      * @return parameterized type for specified element, or {@code Object.class}
      * if element is not paremeterized.
      */
-    public Type getParameterizedType(Element element, int typeArgument,
+    protected final Type getParameterizedType(Element element, int typeArgument,
             Class<?> requiredType) {
         // PENDING: handle ArrayOutOfBoundsException?
         final Type t;
         switch (element.getElementType()) {
             case FIELD:
                 Field f = ((FieldElement) element).getField();
-                if (requiredType != null &&
-                        !requiredType.isAssignableFrom(f.getType())) {
-                    throw new BeanletTypeMismatchException(beanletName, 
-                            element.getMember(), requiredType, f.getType());
-                }
-                if (f.getGenericType() instanceof ParameterizedType) {
-                    t = ((ParameterizedType) f.getGenericType()).
-                            getActualTypeArguments()[typeArgument];
+                if (isProviderElement(element)) {
+                    if (f.getGenericType() instanceof ParameterizedType) {
+                        Type tmp = ((ParameterizedType) f.getGenericType()).
+                                getActualTypeArguments()[0];
+                        if (tmp instanceof ParameterizedType) {
+                            if (requiredType != null &&
+                                    !requiredType.isAssignableFrom((Class) ((ParameterizedType) tmp).getRawType())) {
+                                throw new BeanletTypeMismatchException(beanletName,
+                                        element.getMember(), requiredType, (Class) ((ParameterizedType) tmp).getRawType());
+                            }
+                            t = ((ParameterizedType) tmp).getActualTypeArguments()[typeArgument];
+                        } else {
+                            t = Object.class;
+                        }
+                    } else {
+                        t = Object.class;
+                    }
                 } else {
-                    t = null;
+                    if (f.getGenericType() instanceof ParameterizedType) {
+                        if (requiredType != null &&
+                                !requiredType.isAssignableFrom(f.getType())) {
+                            throw new BeanletTypeMismatchException(beanletName,
+                                    element.getMember(), requiredType, f.getType());
+                        }
+                        t = ((ParameterizedType) f.getGenericType()).
+                                getActualTypeArguments()[typeArgument];
+                    } else {
+                        t = Object.class;
+                    }
                 }
                 break;
             case METHOD:
                 Method m = ((MethodElement) element).getMethod();
-                if (requiredType != null &&
-                        !requiredType.isAssignableFrom(m.getParameterTypes()[0])) {
-                    throw new BeanletTypeMismatchException(beanletName, 
-                            element.getMember(), requiredType,
-                            m.getParameterTypes()[0]);
-                }
-                if (m.getGenericParameterTypes()[0] instanceof ParameterizedType) {
-                    t = ((ParameterizedType) m.getGenericParameterTypes()[0]).
-                            getActualTypeArguments()[typeArgument];
+                if (isProviderElement(element)) {
+                    if (m.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                        Type tmp = ((ParameterizedType) m.getGenericParameterTypes()[0]).
+                                getActualTypeArguments()[0];
+                        if (tmp instanceof ParameterizedType) {
+                            if (requiredType != null &&
+                                    !requiredType.isAssignableFrom((Class) ((ParameterizedType) tmp).getRawType())) {
+                                throw new BeanletTypeMismatchException(beanletName,
+                                        element.getMember(), requiredType, (Class) ((ParameterizedType) tmp).getRawType());
+                            }
+                            t = ((ParameterizedType) tmp).getActualTypeArguments()[typeArgument];
+                        } else {
+                            t = Object.class;
+                        }
+                    } else {
+                        t = Object.class;
+                    }
                 } else {
-                    t = null;
+                    if (m.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                        if (requiredType != null &&
+                                !requiredType.isAssignableFrom(m.getParameterTypes()[0])) {
+                            throw new BeanletTypeMismatchException(beanletName,
+                                    element.getMember(), requiredType,
+                                    m.getParameterTypes()[0]);
+                        }
+                        t = ((ParameterizedType) m.getGenericParameterTypes()[0]).
+                                getActualTypeArguments()[typeArgument];
+                    } else {
+                        t = Object.class;
+                    }
                 }
                 break;
             case CONSTRUCTOR:
                 Constructor c = ((ConstructorElement) element).getConstructor();
-                if (requiredType != null &&
-                        !requiredType.isAssignableFrom(c.getParameterTypes()[0])) {
-                    throw new BeanletTypeMismatchException(beanletName, 
-                            element.getMember(), requiredType, 
-                            c.getParameterTypes()[0]);
-                }
-                if (c.getGenericParameterTypes()[0] instanceof ParameterizedType) {
-                    t = ((ParameterizedType) c.getGenericParameterTypes()[0]).
-                            getActualTypeArguments()[typeArgument];
+                if (isProviderElement(element)) {
+                    if (c.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                        Type tmp = ((ParameterizedType) c.getGenericParameterTypes()[0]).
+                                getActualTypeArguments()[0];
+                        if (tmp instanceof ParameterizedType) {
+                            if (requiredType != null &&
+                                    !requiredType.isAssignableFrom((Class) ((ParameterizedType) tmp).getRawType())) {
+                                throw new BeanletTypeMismatchException(beanletName,
+                                        element.getMember(), requiredType, (Class) ((ParameterizedType) tmp).getRawType());
+                            }
+                            t = ((ParameterizedType) tmp).getActualTypeArguments()[typeArgument];
+                        }  else {
+                            t = Object.class;
+                        }
+                    } else {
+                        t = Object.class;
+                    }
                 } else {
-                    t = null;
+                    if (requiredType != null &&
+                            !requiredType.isAssignableFrom(c.getParameterTypes()[0])) {
+                        throw new BeanletTypeMismatchException(beanletName,
+                                element.getMember(), requiredType,
+                                c.getParameterTypes()[0]);
+                    }
+                    if (c.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                        t = ((ParameterizedType) c.getGenericParameterTypes()[0]).
+                                getActualTypeArguments()[typeArgument];
+                    } else {
+                        t = Object.class;
+                    }
                 }
                 break;
             case PARAMETER:
                 if (element instanceof MethodParameterElement) {
                     MethodParameterElement mpe = (MethodParameterElement) element;
                     Method pm = mpe.getMethod();
-                    if (requiredType != null &&
-                            !requiredType.isAssignableFrom(
-                            pm.getParameterTypes()[mpe.getParameter()])) {
-                        throw new BeanletTypeMismatchException(beanletName, 
-                                element.getMember(), requiredType, 
-                                pm.getParameterTypes()[0]);
-                    }
-                    if (pm.getGenericParameterTypes()[0] instanceof ParameterizedType) {
-                        t = ((ParameterizedType) pm.
-                                getGenericParameterTypes()[mpe.getParameter()]).
-                                getActualTypeArguments()[typeArgument];
+                    if (isProviderElement(element)) {
+                        if (pm.getGenericParameterTypes()[mpe.getParameter()] instanceof ParameterizedType) {
+                            Type tmp = ((ParameterizedType) pm.getGenericParameterTypes()[mpe.getParameter()]).
+                                    getActualTypeArguments()[0];
+                            if (tmp instanceof ParameterizedType) {
+                                if (requiredType != null &&
+                                        !requiredType.isAssignableFrom((Class) ((ParameterizedType) tmp).getRawType())) {
+                                    throw new BeanletTypeMismatchException(beanletName,
+                                            element.getMember(), requiredType, (Class) ((ParameterizedType) tmp).getRawType());
+                                }
+                                t = ((ParameterizedType) tmp).getActualTypeArguments()[typeArgument];
+                            }  else {
+                                t = Object.class;
+                            }
+                        } else {
+                            t = Object.class;
+                        }
                     } else {
-                        t = null;
+                        if (requiredType != null &&
+                                !requiredType.isAssignableFrom(
+                                pm.getParameterTypes()[mpe.getParameter()])) {
+                            throw new BeanletTypeMismatchException(beanletName,
+                                    element.getMember(), requiredType,
+                                    pm.getParameterTypes()[mpe.getParameter()]);
+                        }
+                        if (pm.getGenericParameterTypes()[mpe.getParameter()] instanceof ParameterizedType) {
+                            t = ((ParameterizedType) pm.
+                                    getGenericParameterTypes()[mpe.getParameter()]).
+                                    getActualTypeArguments()[typeArgument];
+                        } else {
+                            t = Object.class;
+                        }
                     }
                     break;
                 } else if (element instanceof ConstructorParameterElement) {
                     ConstructorParameterElement cpe = (ConstructorParameterElement) element;
                     Constructor pc = cpe.getConstructor();
-                    if (requiredType != null &&
-                            !requiredType.isAssignableFrom(
-                            pc.getParameterTypes()[cpe.getParameter()])) {
-                        throw new BeanletTypeMismatchException(beanletName, 
-                                element.getMember(), requiredType, 
-                                pc.getParameterTypes()[cpe.getParameter()]);
-                    }
-                    if (pc.getGenericParameterTypes()[cpe.getParameter()] instanceof ParameterizedType) {
-                        t = ((ParameterizedType) pc.getGenericParameterTypes()[cpe.getParameter()]).
-                                getActualTypeArguments()[typeArgument];
+                    if (isProviderElement(element)) {
+                        if (pc.getGenericParameterTypes()[cpe.getParameter()] instanceof ParameterizedType) {
+                            Type tmp = ((ParameterizedType) pc.getGenericParameterTypes()[cpe.getParameter()]).
+                                    getActualTypeArguments()[0];
+                            if (tmp instanceof ParameterizedType) {
+                                if (requiredType != null &&
+                                        !requiredType.isAssignableFrom((Class) ((ParameterizedType) tmp).getRawType())) {
+                                    throw new BeanletTypeMismatchException(beanletName,
+                                            element.getMember(), requiredType, (Class) ((ParameterizedType) tmp).getRawType());
+                                }
+                                t = ((ParameterizedType) tmp).getActualTypeArguments()[typeArgument];
+                            } else {
+                                t = Object.class;
+                            }
+                        } else {
+                            t = Object.class;
+                        }
                     } else {
-                        t = null;
+                        if (requiredType != null &&
+                                !requiredType.isAssignableFrom(
+                                pc.getParameterTypes()[cpe.getParameter()])) {
+                            throw new BeanletTypeMismatchException(beanletName,
+                                    element.getMember(), requiredType,
+                                    pc.getParameterTypes()[cpe.getParameter()]);
+                        }
+                        if (pc.getGenericParameterTypes()[cpe.getParameter()] instanceof ParameterizedType) {
+                            t = ((ParameterizedType) pc.getGenericParameterTypes()[cpe.getParameter()]).
+                                    getActualTypeArguments()[typeArgument];
+                        } else {
+                            t = Object.class;
+                        }
                     }
                 } else {
                     throw new AssertionError(element.getElementType());
@@ -208,8 +292,8 @@ public abstract class ParameterizedTypeAwareDependencyInjectionFactory extends
         }
         return t;
     }
-    
-    public BeanletFactory<?> getBeanletFactory(
+
+    protected final BeanletFactory<?> getBeanletFactory(
             ElementAnnotation<? extends Element, Inject> ea) throws 
             BeanletWiringException {
         final BeanletFactory<?> factory;

@@ -30,19 +30,22 @@
  */
 package org.beanlet.common;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+import com.sun.tools.internal.xjc.model.nav.EagerNClass;
+import org.beanlet.BeanletMetaData;
+import org.beanlet.Provider;
 import org.beanlet.plugin.Injectant;
 import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.DependencyInjectionFactory;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.beanlet.BeanletWiringException;
 import org.beanlet.annotation.AnnotationDeclaration;
 import org.beanlet.annotation.AnnotationDomain;
@@ -56,60 +59,73 @@ import org.beanlet.annotation.MethodElement;
 import org.beanlet.annotation.MethodParameterElement;
 import org.beanlet.annotation.TypeElement;
 import org.jargo.ComponentContext;
+import sun.tools.tree.CaseStatement;
 
 /**
+ * Abstract dependency injection factory implementation. It is advised that all dependency injection factories extends
+ * this class.
+ *
+ * This class adds generic support for {@code Provider}.
  *
  * @author Leon van Zantvoort
  */
 public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
         implements DependencyInjectionFactory {
-    
-    private final String beanletName;
+
+    private static final Object DUMMY = new Object();
+
     private final BeanletConfiguration<?> configuration;
     private final AnnotationDomain domain;
     
     public AbstractDependencyInjectionFactory(BeanletConfiguration<?> configuration) {
         this.configuration = configuration;
-        this.beanletName = configuration.getComponentName();
         this.domain = configuration.getAnnotationDomain();
     }
     
-    public abstract Class<T> annotationType();
+    protected abstract Class<T> annotationType();
     
-    public abstract boolean isSupported(
+    protected abstract boolean isSupported(
             ElementAnnotation<? extends Element, T> ea);
     
-    public abstract boolean isOptional(
+    protected abstract boolean isOptional(
             ElementAnnotation<? extends Element, T> ea);
     
-    public abstract Set<String> getDependencies(
+    protected abstract Set<String> getDependencies(
             ElementAnnotation<? extends Element, T> ea) 
             throws BeanletWiringException;
 
-    public abstract Injectant getInjectant(
+    /**
+     * May return {@code null} if at runtime it is detected that no injectant can be delivered.
+     * @throws BeanletWiringException
+     */
+    protected abstract Injectant getInjectant(
             ElementAnnotation<? extends Element, T> ea, ComponentContext<?> ctx)
             throws BeanletWiringException;
     
     /**
      * Extracts name from specified {@code annotation}, possible an empty
      * string.
+     *
+     * This method allows sub classes to assiciate a name with the given {@code annotation}.
      */
-    public String getName(T annotation) {
+    protected String getName(T annotation) {
         return "";
     }
     
     /**
      * Extracts the type from the specified {@code annotation}, returns 
      * {@code Object.class} by default.
+     *
+     * This method allows sub classes to associate a type with the given {@code annotation}.
      */
-    public Class<?> getType(T annotation) {
+    protected Class<?> getType(T annotation) {
         return Object.class;
     }
     
     /**
      * @return possibly an empty string.
      */
-    public String getName(ElementAnnotation<? extends Element, T> ea) {
+    protected final String getName(ElementAnnotation<? extends Element, T> ea) {
         String name = getName(ea.getAnnotation());
         if (name.length() == 0) {
             name = getName(ea.getElement());
@@ -117,8 +133,12 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
         assert name != null;
         return name;
     }
-    
-    public Class<?> getType(ElementAnnotation<? extends Element, T> ea) {
+
+    /**
+     * Extracts the type from the specified element annotation. The type is inferred from the element, unless
+     * sub classes associate a type with the annotation by overriding {@code getType(T annotation)}.
+     */
+    protected final Class<?> getType(ElementAnnotation<? extends Element, T> ea) {
         Class<?> type = getType(ea.getAnnotation());
         if (Object.class.equals(type)) {
             type = getType(ea.getElement());
@@ -128,9 +148,141 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
     }
     
     /**
+     * Helper method.
+     */
+    protected final Class<?> getTypeClass(Type t) {
+        if (t instanceof GenericArrayType) {
+            return (Class) ((GenericArrayType) t).getGenericComponentType();
+        }
+        if (t instanceof ParameterizedType) {
+            return (Class) ((ParameterizedType) t).getRawType();
+        }
+        if (t instanceof TypeVariable) {
+            return (Class) ((TypeVariable) t).getBounds()[0];
+        }
+        if (t instanceof WildcardType) {
+            return getTypeClass(((WildcardType) t).getUpperBounds()[0]);
+        } else {
+            return (Class) t;
+        }
+    }
+
+    /**
+     * Returns the type of the injection signature. If type is {@code Provider}, the parameterized type of provider
+     * is returned.
+     *
+     * @return possibly {@code Object.class}.
+     */
+    protected final Class<?> getType(Element element) {
+        final Class<?> type;
+        Class<?> tmp;
+        switch (element.getElementType()) {
+            case ANNOTATION_TYPE:
+                type = ((AnnotationTypeElement) element).getAnnotationType();
+                break;
+            case CONSTRUCTOR:
+                Constructor constructor = ((ConstructorElement) element).
+                        getConstructor();
+                if (constructor.getParameterTypes().length == 1) {
+                    tmp = constructor.getParameterTypes()[0];
+                    if (Provider.class.isAssignableFrom(tmp)) {
+                        if (constructor.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                            type = getTypeClass(((ParameterizedType) constructor.getGenericParameterTypes()[0]).
+                                    getActualTypeArguments()[0]);
+                        } else {
+                            type = tmp;
+                        }
+                    } else {
+                        type = tmp;
+                    }
+                } else {
+                    type = Object.class;
+                }
+                break;
+            case FIELD:
+                Field field = ((FieldElement) element).getField();
+                tmp = field.getType();
+                if (Provider.class.isAssignableFrom(tmp)) {
+                    if (field.getGenericType() instanceof ParameterizedType) {
+                        type = getTypeClass(((ParameterizedType) field.getGenericType()).
+                                getActualTypeArguments()[0]);
+                    } else {
+                        type = tmp;
+                    }
+                } else {
+                    type = tmp;
+                }
+                break;
+            case LOCAL_VARIABLE:
+                type = Object.class;
+                break;
+            case METHOD:
+                Method method = ((MethodElement) element).getMethod();
+                if (method.getParameterTypes().length == 1) {
+                    tmp = method.getParameterTypes()[0];
+                    if (Provider.class.isAssignableFrom(tmp)) {
+                        if (method.getGenericParameterTypes()[0] instanceof ParameterizedType) {
+                            type = getTypeClass(((ParameterizedType) method.getGenericParameterTypes()[0]).
+                                    getActualTypeArguments()[0]);
+                        } else {
+                            type = tmp;
+                        }
+                    } else {
+                        type = tmp;
+                    }
+                } else {
+                    type = Object.class;
+                }
+                break;
+            case PACKAGE:
+                type = Object.class;
+                break;
+            case PARAMETER:
+                if (element instanceof ConstructorParameterElement) {
+                    ConstructorParameterElement cpe = (ConstructorParameterElement) element;
+                    tmp = cpe.getConstructor().getParameterTypes()[cpe.getParameter()];
+                    if (Provider.class.isAssignableFrom(tmp)) {
+                        if (cpe.getConstructor().getGenericParameterTypes()[cpe.getParameter()] instanceof ParameterizedType) {
+                            type = getTypeClass(((ParameterizedType) cpe.getConstructor().getGenericParameterTypes()[cpe.getParameter()]).
+                                    getActualTypeArguments()[0]);
+                        } else {
+                            type = tmp;
+                        }
+                    } else {
+                        type = tmp;
+                    }
+                } else if (element instanceof MethodParameterElement) {
+                    MethodParameterElement mpe = (MethodParameterElement) element;
+                    tmp = mpe.getMethod().getParameterTypes()[mpe.getParameter()];
+                    if (Provider.class.isAssignableFrom(tmp)) {
+                        if (mpe.getMethod().getGenericParameterTypes()[mpe.getParameter()] instanceof ParameterizedType) {
+                            type = getTypeClass(((ParameterizedType) mpe.getMethod().
+                                    getGenericParameterTypes()[mpe.getParameter()]).
+                                    getActualTypeArguments()[0]);
+                        } else {
+                            type = tmp;
+                        }
+                    } else {
+                        type = tmp;
+                    }
+                } else {
+                    type = Object.class;
+                }
+                break;
+            case TYPE:
+                type = ((TypeElement) element).getType();
+                break;
+            default:
+                type = Object.class;
+                break;
+        }
+        return type;
+    }
+
+    /**
      * @return possibly an empty string.
      */
-    public String getName(Element element) {
+    protected final String getName(Element element) {
         final String name;
         switch (element.getElementType()) {
             case ANNOTATION_TYPE:
@@ -170,37 +322,161 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
         return name;
     }
     
-    /**
-     * @return possibly {@code Object.class}.
-     */
-    public Class<?> getType(Element element) {
+    public final List<DependencyInjection> getConstructorDependencyInjections(
+            Class<?> cls) {
+        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
+        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
+        for (final ElementAnnotation<ConstructorElement, T> ea :
+                ad.getTypedElements(ConstructorElement.class)) {
+            if (ea.getElement().isElementOfSubclass(cls)) {
+                if (isSupported(ea)) {
+                    list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                            new DelegatingDependencyInjection(ea)));
+                }
+            }
+        }
+        for (final ElementAnnotation<ConstructorParameterElement, T> ea :
+                ad.getTypedElements(ConstructorParameterElement.class)) {
+            if (ea.getElement().isElementOfSubclass(cls)) {
+                if (isSupported(ea)) {
+                    list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                            new DelegatingDependencyInjection(ea)));
+                }
+            }
+        }
+                
+        if (configuration.getType().isAssignableFrom(cls)) {
+            // Factory (static) method / (static) field injection only
+            // supported for beanlet type (or any sub class), not for
+            // interceptors.
+
+            for (final ElementAnnotation<MethodElement, T> ea :
+                    ad.getTypedElements(MethodElement.class)) {
+                Method method = ea.getElement().getMethod();
+                if (Modifier.isStatic(method.getModifiers()) &&
+                        !method.getReturnType().equals(Void.TYPE)) {
+                    // No isPartOf check, because factory method can return any type.
+                    if (isSupported(ea)) {
+                        list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                                new DelegatingDependencyInjection(ea)));
+                    }
+                }
+            }
+            for (final ElementAnnotation<MethodParameterElement, T> ea :
+                    ad.getTypedElements(MethodParameterElement.class)) {
+                Method method = ea.getElement().getMethod();
+                if (Modifier.isStatic(method.getModifiers()) &&
+                        !method.getReturnType().equals(Void.TYPE)) {
+                    // No isPartOf check, because factory method can return any type.
+                    if (isSupported(ea)) {
+                        list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                                new DelegatingDependencyInjection(ea)));
+                    }
+                }
+            }
+            for (final ElementAnnotation<FieldElement, T> ea :
+                    ad.getTypedElements(FieldElement.class)) {
+                Field field = ea.getElement().getField();
+                if (Modifier.isStatic(field.getModifiers())) {
+                    // No isPartOf check, because factory field can return any type.
+                    if (isSupported(ea)) {
+                        list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                                new DelegatingDependencyInjection(ea)));
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableList(list);
+    }
+    
+    public final List<DependencyInjection> getSetterDependencyInjections(
+            Class<?> cls) {
+        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
+        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
+        for (final ElementAnnotation<FieldElement, T> ea :
+                ad.getTypedElements(FieldElement.class, cls)) {
+            if (Modifier.isStatic(ea.getElement().getField().getModifiers())) {
+                continue;
+            }
+            if (isSupported(ea)) {
+                list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                        new DelegatingDependencyInjection(ea)));
+            }
+        }
+        for (final ElementAnnotation<MethodElement, T> ea :
+                ad.getTypedElements(MethodElement.class, cls)) {
+            if (Modifier.isStatic(ea.getElement().getMethod().getModifiers())) {
+                continue;
+            }
+            if (isSupported(ea)) {
+                list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                        new DelegatingDependencyInjection(ea)));
+            }
+        }
+        for (final ElementAnnotation<MethodParameterElement, T> ea :
+                ad.getTypedElements(MethodParameterElement.class, cls)) {
+            if (Modifier.isStatic(ea.getElement().getMethod().getModifiers())) {
+                continue;
+            }
+            if (isSupported(ea)) {
+                list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                        new DelegatingDependencyInjection(ea)));
+            }
+        }
+        return Collections.unmodifiableList(list);
+    }
+    
+    public final List<DependencyInjection> getFactoryDependencyInjections(
+            Class<?> cls, String factoryMethod) {
+        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
+        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
+        for (final ElementAnnotation<MethodElement, T> ea :
+                ad.getTypedElements(MethodElement.class, cls)) {
+            Method method = ea.getElement().getMethod();
+            if (!Modifier.isStatic(method.getModifiers()) &&
+                    !method.getReturnType().equals(Void.TYPE) &&
+                    method.getName().equals(factoryMethod)) {
+                if (isSupported(ea)) {
+                    list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                            new DelegatingDependencyInjection(ea)));
+                }
+            }
+        }
+        for (final ElementAnnotation<MethodParameterElement, T> ea :
+                ad.getTypedElements(MethodParameterElement.class, cls)) {
+            Method method = ea.getElement().getMethod();
+            if (!Modifier.isStatic(method.getModifiers()) &&
+                    !method.getReturnType().equals(Void.TYPE) &&
+                    method.getName().equals(factoryMethod)) {
+                if (isSupported(ea)) {
+                    list.add(new DependencyInjectionAdapter<T>(configuration.getComponentName(), ea,
+                            new DelegatingDependencyInjection(ea)));
+                }
+            }
+        }
+        return Collections.unmodifiableList(list);
+    }
+
+    protected final boolean isProviderElement(Element element) {
         final Class<?> type;
         switch (element.getElementType()) {
             case ANNOTATION_TYPE:
                 type = ((AnnotationTypeElement) element).getAnnotationType();
                 break;
             case CONSTRUCTOR:
-                Constructor constructor = ((ConstructorElement) element).
-                        getConstructor();
-                if (constructor.getParameterTypes().length == 1) {
-                    type = constructor.getParameterTypes()[0];
-                } else {
-                    type = Object.class;
-                }
+                Constructor constructor = ((ConstructorElement) element).getConstructor();
+                type = constructor.getParameterTypes()[0];
                 break;
             case FIELD:
-                type = ((FieldElement) element).getField().getType();
+                Field field = ((FieldElement) element).getField();
+                type = field.getType();
                 break;
             case LOCAL_VARIABLE:
                 type = Object.class;
                 break;
             case METHOD:
                 Method method = ((MethodElement) element).getMethod();
-                if (method.getParameterTypes().length == 1) {
-                    type = method.getParameterTypes()[0];
-                } else {
-                    type = Object.class;
-                }
+                type = method.getParameterTypes()[0];
                 break;
             case PACKAGE:
                 type = Object.class;
@@ -223,288 +499,80 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
                 type = Object.class;
                 break;
         }
-        return type;
+        return Provider.class.isAssignableFrom(type);
     }
-    
-    public List<DependencyInjection> getConstructorDependencyInjections(
-            Class<?> cls) {
-        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
-        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
-        for (final ElementAnnotation<ConstructorElement, T> ea :
-                ad.getTypedElements(ConstructorElement.class)) {
-            if (ea.getElement().isElementOfSubclass(cls)) {
-                if (isSupported(ea)) {
-                    list.add(new DependencyInjectionAdapter(ea, 
-                            new DependencyInjection() {
-                        public Element getTarget() {
-                            return ea.getElement();
-                        }
-                        public Set<String> getDependencies() {
-                            return AbstractDependencyInjectionFactory.
-                                    this.getDependencies(ea);
-                        }
-                        public boolean isOptional() {
-                            return AbstractDependencyInjectionFactory.
-                                    this.isOptional(ea);
-                        }
-                        public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                            return AbstractDependencyInjectionFactory.
-                                    this.getInjectant(ea, ctx);
-                        }
-                    }));
-                }
-            }
-        }
-        for (final ElementAnnotation<ConstructorParameterElement, T> ea :
-                ad.getTypedElements(ConstructorParameterElement.class)) {
-            if (ea.getElement().isElementOfSubclass(cls)) {
-                if (isSupported(ea)) {
-                    list.add(new DependencyInjectionAdapter(ea,
-                            new DependencyInjection() {
-                        public Element getTarget() {
-                            return ea.getElement();
-                        }
-                        public Set<String> getDependencies() {
-                            return AbstractDependencyInjectionFactory.
-                                    this.getDependencies(ea);
-                        }
-                        public boolean isOptional() {
-                            return AbstractDependencyInjectionFactory.
-                                    this.isOptional(ea);
-                        }
-                        public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                            return AbstractDependencyInjectionFactory.
-                                    this.getInjectant(ea, ctx);
-                        }
-                    }));
-                }
-            }
-        }
-                
-        if (configuration.getType().isAssignableFrom(cls)) {
-            // Factory (static) method / (static) field injection only
-            // supported for beanlet type (or any sub class), not for
-            // interceptors.
 
-            for (final ElementAnnotation<MethodElement, T> ea :
-                    ad.getTypedElements(MethodElement.class)) {
-                Method method = ea.getElement().getMethod();
-                if (Modifier.isStatic(method.getModifiers()) &&
-                        !method.getReturnType().equals(Void.TYPE)) {
-                    // No isPartOf check, because factory method can return any type.
-                    if (isSupported(ea)) {
-                        list.add(new DependencyInjectionAdapter(ea,
-                                new DependencyInjection() {
-                            public Element getTarget() {
-                                return ea.getElement();
-                            }
-                            public Set<String> getDependencies() {
-                                return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                            }
-                            public boolean isOptional() {
-                                return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                            }
-                            public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                                return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                            }
-                        }));
-                    }
-                }
-            }
-            for (final ElementAnnotation<MethodParameterElement, T> ea :
-                    ad.getTypedElements(MethodParameterElement.class)) {
-                Method method = ea.getElement().getMethod();
-                if (Modifier.isStatic(method.getModifiers()) &&
-                        !method.getReturnType().equals(Void.TYPE)) {
-                    // No isPartOf check, because factory method can return any type.
-                    if (isSupported(ea)) {
-                        list.add(new DependencyInjectionAdapter(ea,
-                                new DependencyInjection() {
-                            public Element getTarget() {
-                                return ea.getElement();
-                            }
-                            public Set<String> getDependencies() {
-                                return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                            }
-                            public boolean isOptional() {
-                                return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                            }
-                            public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                                return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                            }
-                        }));
-                    }
-                }
-            }
-            for (final ElementAnnotation<FieldElement, T> ea :
-                    ad.getTypedElements(FieldElement.class)) {
-                Field field = ea.getElement().getField();
-                if (Modifier.isStatic(field.getModifiers())) {
-                    // No isPartOf check, because factory field can return any type.
-                    if (isSupported(ea)) {
-                        list.add(new DependencyInjection() {
-                            public Element getTarget() {
-                                return ea.getElement();
-                            }
-                            public Set<String> getDependencies() {
-                                return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                            }
-                            public boolean isOptional() {
-                                return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                            }
-                            public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                                return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                            }
-                        });
-                    }
-                }
-            }
+    private final class DelegatingDependencyInjection implements DependencyInjection {
+
+        private final ElementAnnotation<? extends Element,T> ea;
+
+        public DelegatingDependencyInjection(ElementAnnotation<? extends Element,T> ea) {
+            this.ea = ea;
         }
-        return Collections.unmodifiableList(list);
+
+        public Element getTarget() {
+            return ea.getElement();
+        }
+
+        public Set<String> getDependencies() {
+            return AbstractDependencyInjectionFactory.this.getDependencies(ea);
+        }
+
+        public boolean isOptional() {
+            return AbstractDependencyInjectionFactory.this.isOptional(ea);
+        }
+
+        public Injectant<?> getInjectant(ComponentContext<?> ctx) {
+            final Injectant<?> injectant;
+            if (isProviderElement(ea.getElement())) {
+                injectant = new InjectantImpl<Object>(new ProviderImpl(ea, ctx), false);
+            } else {
+                injectant = AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
+            }
+            return injectant;
+        }
+    }
+
+    private final class ProviderImpl implements Provider<Object> {
+
+        private final ElementAnnotation<? extends Element,T> ea;
+        private final ComponentContext<?> ctx;
+
+        private final AtomicReference<Object> result;
+
+        public ProviderImpl(ElementAnnotation<? extends Element,T> ea, ComponentContext<?> ctx) {
+            this.ea = ea;
+            this.ctx = ctx;
+            this.result = new AtomicReference<Object>();
+        }
+
+        public Object get() {
+            Object o = result.get();
+            if (o == null) {
+                Injectant<?> injectant = AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
+                if (injectant != null) {
+                    o = injectant.getObject();
+                    if (injectant.isCacheable()) {
+                        result.compareAndSet(null, o == null ? DUMMY : o);
+                        o = result.get();
+                    }
+                }
+            }
+            return o == DUMMY ? null : o;
+        }
     }
     
-    public List<DependencyInjection> getSetterDependencyInjections(
-            Class<?> cls) {
-        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
-        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
-        for (final ElementAnnotation<FieldElement, T> ea :
-                ad.getTypedElements(FieldElement.class, cls)) {
-            if (Modifier.isStatic(ea.getElement().getField().getModifiers())) {
-                continue;
-            }
-            if (isSupported(ea)) {
-                list.add(new DependencyInjectionAdapter(ea,
-                        new DependencyInjection() {
-                    public Element getTarget() {
-                        return ea.getElement();
-                    }
-                    public Set<String> getDependencies() {
-                        return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                    }
-                    public boolean isOptional() {
-                        return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                    }
-                    public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                        return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                    }
-                }));
-            }
-        }
-        for (final ElementAnnotation<MethodElement, T> ea :
-                ad.getTypedElements(MethodElement.class, cls)) {
-            if (Modifier.isStatic(ea.getElement().getMethod().getModifiers())) {
-                continue;
-            }
-            if (isSupported(ea)) {
-                list.add(new DependencyInjectionAdapter(ea,
-                        new DependencyInjection() {
-                    public Element getTarget() {
-                        return ea.getElement();
-                    }
-                    public Set<String> getDependencies() {
-                        return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                    }
-                    public boolean isOptional() {
-                        return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                    }
-                    public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                        return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                    }
-                }));
-            }
-        }
-        for (final ElementAnnotation<MethodParameterElement, T> ea :
-                ad.getTypedElements(MethodParameterElement.class, cls)) {
-            if (Modifier.isStatic(ea.getElement().getMethod().getModifiers())) {
-                continue;
-            }
-            if (isSupported(ea)) {
-                list.add(new DependencyInjectionAdapter(ea,
-                        new DependencyInjection() {
-                    public Element getTarget() {
-                        return ea.getElement();
-                    }
-                    public Set<String> getDependencies() {
-                        return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                    }
-                    public boolean isOptional() {
-                        return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                    }
-                    public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                        return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                    }
-                }));
-            }
-        }
-        return Collections.unmodifiableList(list);
-    }
-    
-    public List<DependencyInjection> getFactoryDependencyInjections(
-            Class<?> cls, String factoryMethod) {
-        List<DependencyInjection> list = new ArrayList<DependencyInjection>();
-        AnnotationDeclaration<T> ad = domain.getDeclaration(annotationType());
-        for (final ElementAnnotation<MethodElement, T> ea :
-                ad.getTypedElements(MethodElement.class, cls)) {
-            Method method = ea.getElement().getMethod();
-            if (!Modifier.isStatic(method.getModifiers()) &&
-                    !method.getReturnType().equals(Void.TYPE) &&
-                    method.getName().equals(factoryMethod)) {
-                if (isSupported(ea)) {
-                    list.add(new DependencyInjectionAdapter(ea,
-                            new DependencyInjection() {
-                        public Element getTarget() {
-                            return ea.getElement();
-                        }
-                        public Set<String> getDependencies() {
-                            return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                        }
-                        public boolean isOptional() {
-                            return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                        }
-                        public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                            return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                        }
-                    }));
-                }
-            }
-        }
-        for (final ElementAnnotation<MethodParameterElement, T> ea :
-                ad.getTypedElements(MethodParameterElement.class, cls)) {
-            Method method = ea.getElement().getMethod();
-            if (!Modifier.isStatic(method.getModifiers()) &&
-                    !method.getReturnType().equals(Void.TYPE) &&
-                    method.getName().equals(factoryMethod)) {
-                if (isSupported(ea)) {
-                    list.add(new DependencyInjectionAdapter(ea,
-                            new DependencyInjection() {
-                        public Element getTarget() {
-                            return ea.getElement();
-                        }
-                        public Set<String> getDependencies() {
-                            return AbstractDependencyInjectionFactory.this.getDependencies(ea);
-                        }
-                        public boolean isOptional() {
-                            return AbstractDependencyInjectionFactory.this.isOptional(ea);
-                        }
-                        public Injectant<?> getInjectant(ComponentContext<?> ctx) {
-                            return AbstractDependencyInjectionFactory.this.getInjectant(ea, ctx);
-                        }
-                    }));
-                }
-            }
-        }
-        return Collections.unmodifiableList(list);
-    }
-    
-    private class DependencyInjectionAdapter implements DependencyInjection {
-        
+    private static final class DependencyInjectionAdapter<T extends Annotation> implements DependencyInjection {
+
+        private final String beanletName;
         private final DependencyInjection target;
         private final ElementAnnotation<? extends Element, T> ea;
 
-        public DependencyInjectionAdapter(
+        public DependencyInjectionAdapter(String beanletName,
                 ElementAnnotation<? extends Element, T> ea, 
                 DependencyInjection target) {
             this.ea = ea;
+            this.beanletName = beanletName;
             this.target = target;
         }
         

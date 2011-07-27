@@ -117,9 +117,4 @@ public final class BeanletFactoryDependencyInjectionFactoryImpl extends
         }
         return new InjectantImpl<Object>(factory, true);
     }
-    
-    @Override
-    public Class<?> getType(Inject inject) {
-        return inject.type();
-    }
 }

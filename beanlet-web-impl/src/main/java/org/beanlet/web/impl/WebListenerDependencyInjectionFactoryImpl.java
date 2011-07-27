@@ -33,6 +33,7 @@ package org.beanlet.web.impl;
 import org.beanlet.BeanletWiringException;
 import org.beanlet.annotation.Element;
 import org.beanlet.annotation.TypeElement;
+import org.beanlet.common.InjectantImpl;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
@@ -85,15 +86,7 @@ public class WebListenerDependencyInjectionFactoryImpl implements DependencyInje
                     Class<EventListener> cls = (Class<EventListener>) typeElement.getType();
                     try {
                         final EventListener listener = servletContext.createListener(cls);
-                        return new Injectant<Object>() {
-                            public boolean isCacheable() {
-                                return true;
-                            }
-
-                            public Object getObject() {
-                                return listener;
-                            }
-                        };
+                        return new InjectantImpl<Object>(listener, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 typeElement.getMember(), e);

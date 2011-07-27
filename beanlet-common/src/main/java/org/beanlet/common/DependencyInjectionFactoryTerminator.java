@@ -58,15 +58,15 @@ public class DependencyInjectionFactoryTerminator<T extends Annotation>
         this.annotationType = annotationType;
     }
     
-    public Class<T> annotationType() {
+    protected final Class<T> annotationType() {
         return annotationType;
     }
     
-    public boolean isSupported(ElementAnnotation<? extends Element, T> ea) {
+    protected final boolean isSupported(ElementAnnotation<? extends Element, T> ea) {
         return true;
     }
     
-    public Set<String> getDependencies(ElementAnnotation<? extends Element, T> ea) {
+    protected final Set<String> getDependencies(ElementAnnotation<? extends Element, T> ea) {
         return Collections.emptySet();
     }
     
@@ -74,7 +74,7 @@ public class DependencyInjectionFactoryTerminator<T extends Annotation>
         return false;
     }
     
-    public Injectant<?> getInjectant(
+    protected final Injectant<?> getInjectant(
             final ElementAnnotation<? extends Element, T> ea,
             final ComponentContext<?> ctx) {
         if (isOptional(ea)) {

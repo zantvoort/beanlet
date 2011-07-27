@@ -34,6 +34,7 @@ import org.beanlet.BeanletCreationException;
 import org.beanlet.BeanletWiringException;
 import org.beanlet.annotation.Element;
 import org.beanlet.annotation.TypeElement;
+import org.beanlet.common.InjectantImpl;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.plugin.DependencyInjection;
 import org.beanlet.plugin.DependencyInjectionFactory;
@@ -96,15 +97,7 @@ public class WebFilterDependencyInjectionFactoryImpl implements DependencyInject
                     Class<Filter> cls = (Class<Filter>) typeElement.getType();
                     try {
                         final Filter filter = servletContext.createFilter(cls);
-                        return new Injectant<Object>() {
-                            public boolean isCacheable() {
-                                return true;
-                            }
-
-                            public Object getObject() {
-                                return filter;
-                            }
-                        };
+                        return new InjectantImpl<Object> (filter, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 typeElement.getMember(), e);
