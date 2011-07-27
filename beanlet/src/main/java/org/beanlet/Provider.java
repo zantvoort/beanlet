@@ -31,12 +31,39 @@
 package org.beanlet;
 
 /**
- * Injection target.
+ * <p>
+ * Provides instances of <code>T</code>. Typically implemented by an injector. For
+ * any type <code>T</code> that can be injected, you can also inject
+ * <code>Provider&lt;T&gt;</code>. Compared to injecting <code>T</code> directly, injecting
+ * <code>Provider&lt;T&gt;</code> enables:
+ *
+ *  <ul>
+ *  <li>retrieving multiple instances.</li>
+ *  <li>lazy or optional retrieval of an instance.</li>
+ *  <li>breaking circular dependencies.</li>
+ *  <li>abstracting scope so you can look up an instance in a smaller scope
+ *     from an instance in a containing scope.</li>
+ * </ul>
+ *
+ * <p>For example:
+ *
+ * <pre>
+ *  class Car {
+ *    &#064;Inject Car(Provider&lt;Seat> seatProvider) {
+ *      Seat driver = seatProvider.get();
+ *      Seat passenger = seatProvider.get();
+ *      ...
+ *    }
+ *  }</pre>
+ * <P>
  *
  * @author Leon van Zantvoort
  */
 public interface Provider<T> {
 
 
+    /**
+     * Provides a fully-constructed and injected instance of {@code T}
+     */
     T get();
 }
