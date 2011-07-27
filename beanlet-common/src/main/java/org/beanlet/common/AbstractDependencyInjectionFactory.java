@@ -515,7 +515,13 @@ public abstract class AbstractDependencyInjectionFactory<T extends Annotation>
         }
 
         public Set<String> getDependencies() {
-            return AbstractDependencyInjectionFactory.this.getDependencies(ea);
+            final Set<String> dependencies;
+            if (isProviderElement(ea.getElement())) {
+                dependencies = Collections.emptySet();
+            } else {
+                dependencies = AbstractDependencyInjectionFactory.this.getDependencies(ea);
+            }
+            return dependencies;
         }
 
         public boolean isOptional() {
