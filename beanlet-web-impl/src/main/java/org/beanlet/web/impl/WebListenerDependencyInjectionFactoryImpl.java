@@ -86,7 +86,7 @@ public class WebListenerDependencyInjectionFactoryImpl implements DependencyInje
                     Class<EventListener> cls = (Class<EventListener>) typeElement.getType();
                     try {
                         final EventListener listener = servletContext.createListener(cls);
-                        return new InjectantImpl<Object>(listener, true);
+                        return new InjectantImpl<Object>(listener, false, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 getTarget().getMember(), e);

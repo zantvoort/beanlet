@@ -34,7 +34,7 @@ import javax.servlet.ServletContext;
 
 public final class WebHelper {
 
-    private static final ThreadLocal<ServletContext> local = new ThreadLocal<ServletContext>();
+    private static final InheritableThreadLocal<ServletContext> local = new InheritableThreadLocal<ServletContext>();
 
     private WebHelper() {
     }

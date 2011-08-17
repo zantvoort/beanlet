@@ -100,7 +100,7 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
                     Class<Servlet> cls = (Class<Servlet>) typeElement.getType();
                     try {
                         final Servlet servlet = servletContext.createServlet(cls);
-                        return new InjectantImpl<Object>(servlet, true);
+                        return new InjectantImpl<Object>(servlet, false, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 getTarget().getMember(), e);

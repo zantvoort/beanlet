@@ -97,7 +97,7 @@ public class WebFilterDependencyInjectionFactoryImpl implements DependencyInject
                     Class<Filter> cls = (Class<Filter>) typeElement.getType();
                     try {
                         final Filter filter = servletContext.createFilter(cls);
-                        return new InjectantImpl<Object> (filter, true);
+                        return new InjectantImpl<Object> (filter, false, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
                                 getTarget().getMember(), e);
