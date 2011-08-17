@@ -94,7 +94,7 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
                 public Injectant<?> getInjectant(ComponentContext<?> ctx) throws BeanletWiringException {
                     if (servletContext == null) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
-                                typeElement.getMember(), "ServletContext not available.");
+                                getTarget().getMember(), "ServletContext not available.");
                     }
                     @SuppressWarnings("unchecked")
                     Class<Servlet> cls = (Class<Servlet>) typeElement.getType();
@@ -103,7 +103,7 @@ public class WebServletDependencyInjectionFactoryImpl implements DependencyInjec
                         return new InjectantImpl<Object>(servlet, true);
                     } catch (ServletException e) {
                         throw new BeanletWiringException(ctx.getComponentMetaData().getComponentName(),
-                                typeElement.getMember(), e);
+                                getTarget().getMember(), e);
                     }
                 }
             };
