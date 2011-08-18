@@ -82,9 +82,10 @@ public class ValidatingDependencyInjection implements DependencyInjection {
     public Set<String> getDependencies() throws BeanletWiringException {
         return injection.getDependencies();
     }
-    
+
     public Injectant<?> getInjectant(ComponentContext<?> ctx) throws 
             BeanletWiringException {
+        // Assertion errors are the result of incorrectly implemented dependency injection factories.
         Injectant injectant = injection.getInjectant(ctx);
         if (injectant != null) {
             Object o = injectant.getObject();
