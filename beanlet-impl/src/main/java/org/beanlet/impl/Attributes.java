@@ -328,10 +328,15 @@ public final class Attributes {
                                 getter = createProxyMethodGetter(attributeName, 
                                         method, method.getReturnType());
                             } else {
-                                throw new BeanletValidationException(
-                                        configuration.getComponentName(), t + 
-                                        "Getter and setter type do not match: '" + 
-                                        method + "'.");
+                                // Not explicitely marked as attribute so skip method instead of exception.
+                                //
+                                // Leon van Zantvoort
+                                // 2011/01/09
+                                continue;
+//                                throw new BeanletValidationException(
+//                                        configuration.getComponentName(), t +
+//                                        "Getter and setter type do not match: '" +
+//                                        method + "'.");
                             }
                         }
                         Setter setter = setters.get(attributeName);
@@ -341,10 +346,15 @@ public final class Attributes {
                             getters.put(attributeName, getter);
                             memberGetters.put(getter.getMember(), getter);
                         } else {
-                            throw new BeanletValidationException(
-                                    configuration.getComponentName(), 
-                                    "Duplicate writable attributes found: '" + 
-                                    attributeName + "'.");
+                            // Not explicitely marked as attribute so skip method instead of exception.
+                            //
+                            // Leon van Zantvoort
+                            // 2011/01/09
+                            continue;
+//                            throw new BeanletValidationException(
+//                                    configuration.getComponentName(),
+//                                    "Duplicate writable attributes found: '" +
+//                                    attributeName + "'.");
                         }
                     }
                 } else if (isSetter(method)) {
@@ -358,10 +368,15 @@ public final class Attributes {
                                 setter = createProxyMethodSetter(attributeName, 
                                         method, method.getParameterTypes()[0]);
                             } else {
-                                throw new BeanletValidationException(
-                                        configuration.getComponentName(), t + 
-                                        " method not exposed as attribute: \'" + 
-                                        method + "\'.");
+                                // Not explicitely marked as attribute so skip method instead of exception.
+                                //
+                                // Leon van Zantvoort
+                                // 2011/01/09
+                                continue;
+//                                throw new BeanletValidationException(
+//                                        configuration.getComponentName(), t +
+//                                        " method not exposed as attribute: \'" +
+//                                        method + "\'.");
                             }
                         }
                         Getter getter = getters.get(attributeName);
@@ -370,9 +385,14 @@ public final class Attributes {
                             setters.put(attributeName, setter);
                             memberSetters.put(setter.getMember(), setter);
                         } else {
-                            throw new BeanletValidationException(
-                                    configuration.getComponentName(), 
-                                    "Superclass" + attributeName + "\'.");
+                            // Not explicitely marked as attribute so skip method instead of exception.
+                            //
+                            // Leon van Zantvoort
+                            // 2011/01/09
+                            continue;
+//                            throw new BeanletValidationException(
+//                                    configuration.getComponentName(),
+//                                    "Superclass" + attributeName + "\'.");
                         }
                     }
                 }
