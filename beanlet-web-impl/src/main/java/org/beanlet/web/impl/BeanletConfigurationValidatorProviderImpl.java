@@ -33,6 +33,7 @@ package org.beanlet.web.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.BeanletConfigurationValidator;
 import org.beanlet.plugin.spi.BeanletConfigurationValidatorProvider;
@@ -42,13 +43,15 @@ import org.beanlet.plugin.spi.BeanletConfigurationValidatorProvider;
  */
 public final class BeanletConfigurationValidatorProviderImpl extends AbstractProvider
         implements BeanletConfigurationValidatorProvider {
-    
+
     public List<BeanletConfigurationValidator> getBeanletConfigurationValidators() {
-        List<BeanletConfigurationValidator> list = 
+        List<BeanletConfigurationValidator> list =
                 new ArrayList<BeanletConfigurationValidator>();
-        list.add(new RequestConfigurationValidatorImpl());
-        list.add(new SessionConfigurationValidatorImpl());
-        list.add(new WebBeanletConfigurationValidatorImpl());
+        if (WebConstants.isSupported()) {
+            list.add(new RequestConfigurationValidatorImpl());
+            list.add(new SessionConfigurationValidatorImpl());
+            list.add(new WebBeanletConfigurationValidatorImpl());
+        }
         return Collections.unmodifiableList(list);
     }
 }

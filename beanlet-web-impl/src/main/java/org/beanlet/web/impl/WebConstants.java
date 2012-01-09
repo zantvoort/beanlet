@@ -60,7 +60,8 @@ public final class WebConstants {
 
     private static final Logger logger = Logger.getLogger(
             WebConstants.class.getName());
-    private static final boolean available;
+    private static final boolean containerInitializerAvailable;
+    private static final boolean contextListenerAvailable;
 
     static {
         boolean tmp = true;
@@ -70,14 +71,29 @@ public final class WebConstants {
         } catch (ClassNotFoundException ex) {
             tmp = false;
         }
-        available = tmp;
-        if (!available) {
-            logger.info("Java Transaction API is not available. JTA transactions disabled.");
+        containerInitializerAvailable = tmp;
+
+        tmp = true;
+        try {
+            WebConstants.class.getClassLoader().
+                    loadClass("javax.servlet.ServletContextListener");
+        } catch (ClassNotFoundException ex) {
+            tmp = false;
+        }
+        contextListenerAvailable = tmp;
+        if (!contextListenerAvailable || !containerInitializerAvailable) {
+            logger.info("Servlet API is not available. WebServlet and Web Scopes disabled.");
+        } else if (!containerInitializerAvailable) {
+            logger.info("Servlet 3.0 API is not available. WebServlet disabled.");
         }
     }
 
     public static boolean isWebServletSupported() {
-        return available;
+        return containerInitializerAvailable;
+    }
+
+    public static boolean isSupported() {
+        return contextListenerAvailable;
     }
 
     private WebConstants() {
