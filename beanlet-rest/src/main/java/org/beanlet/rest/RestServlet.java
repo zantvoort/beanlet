@@ -60,6 +60,25 @@ import org.beanlet.BeanletApplicationException;
  * &lt;/web-app&gt;
  * </pre>
  *
+ * Restlets are deployed automatically by defining a RestFilter or RestServlet in the web.xml:
+ *
+ * <pre>
+ * &lt;servlet&gt;
+ * &lt;servlet-name&gt;Beanlet Rest Servlet&lt;/servlet-name&gt;
+ * &lt;servlet-class&gt;org.beanlet.rest.RestServlet&lt;/servlet-class&gt;
+ *   &lt;init-param&gt;
+ *     &lt;param-name&gt;om.sun.jersey.config.property.packages&lt;/param-name&gt;
+ *     &lt;param-value&gt;com.acme&lt;/param-value&gt;
+ *   &lt;/init-param&gt;
+ *   &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+ * &lt;/servlet&gt;
+ *
+ * &lt;servlet-mapping&gt;
+ *   &lt;servlet-name&gt;Beanlet Rest Servlet&lt;/servlet-name&gt;
+ *   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+ * &lt;/servlet-mapping&gt;  
+ * </pre>
+ *
  * @author Leon van Zantvoort
  */
 public class RestServlet extends HttpServlet {

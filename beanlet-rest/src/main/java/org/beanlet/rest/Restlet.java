@@ -36,12 +36,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Defines whether a restlet is created by the Rest runtime, or by Beanlet.
+ *
+ * @author Leon van Zantvoort
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Restlet {
     /**
-     * @return <code>true</code> if instance is created by the rest runtime.
+     * @return <code>true</code> if instance is created by the Rest runtime.
      */
     boolean createRestlet() default true;
 }
