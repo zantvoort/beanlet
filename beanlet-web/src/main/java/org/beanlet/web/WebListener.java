@@ -39,7 +39,8 @@ import java.lang.annotation.Target;
 
 /**
  * The annotation used to declare a listener for various types of event, in a
- * given web application context.</p>
+ * given web application context. This feature is only supported for Servlet API 3.0
+ * and onwards.<br/>
  *
  * <p>The class annotated MUST implement one, (or more), of the following
  * interfaces: {@link javax.servlet.http.HttpSessionAttributeListener},

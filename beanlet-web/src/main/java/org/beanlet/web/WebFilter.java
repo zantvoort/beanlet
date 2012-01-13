@@ -40,7 +40,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The annotation used to declare a Servlet {@link javax.servlet.Filter}. <br />
+ * The annotation used to declare a Servlet {@link javax.servlet.Filter}.
+ * This feature is only supported for Servlet API 3.0 and onwards.<br/>
  * <br />
  *
  * This annotation will be processed by the container during deployment, the

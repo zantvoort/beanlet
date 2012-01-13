@@ -40,7 +40,8 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation is used to declare the configuration of an
- * {@link javax.servlet.Servlet}. <br/>
+ * {@link javax.servlet.Servlet}. This feature is only supported for Servlet API 3.0
+ * and onwards.<br/>
  *
  * If the name attribute is not defined, the fully qualified name of the class
  * is used.<br/>
