@@ -41,7 +41,7 @@ import org.jargo.deploy.SequentialDeployable;
 public final class SequentialDeployableComparator<T extends SequentialDeployable> 
         implements Comparator<T>, Serializable {
     
-    // PENDING: copied from beanlet-impl.
+    // PENDING: copied from beanlet-jersey.
     
     private static final long serialVersionUID = 8302042876307325570L;
     

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://beanlet.org/schema/rest"
+           xmlns="http://beanlet.org/schema/rest"
+           xmlns:bl="http://beanlet.org/schema/beanlet"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <xs:import namespace="http://beanlet.org/schema/beanlet"
+               schemaLocation="http://beanlet.org/schema/beanlet/beanlet_1_0.xsd"/>
+
+    <xs:element name="restlet" type="restlet-type" substitutionGroup="bl:annotation"/>
+    <xs:complexType name="restlet-type">
+        <xs:complexContent>
+            <xs:extension base="bl:annotation-type">
+                <xs:attribute name="create-restlet" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

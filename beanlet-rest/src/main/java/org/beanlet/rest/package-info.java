@@ -28,21 +28,9 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.plugin;
-
-import java.util.List;
 
 /**
- *
- * @author Leon van Zantvoort
+ * Adds rest support.
  */
-public interface DependencyInjectionFactory {
+package org.beanlet.rest;
 
-    List<DependencyInjection> getConstructorDependencyInjections(Class<?> cls);
-
-    List<DependencyInjection> getSetterDependencyInjections(Class<?> cls);
-
-    // PENDING: replace by ObjectFactory?
-    List<DependencyInjection> getFactoryDependencyInjections(Class<?> cls, 
-            String factoryMethod);
-}

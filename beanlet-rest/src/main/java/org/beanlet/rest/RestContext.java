@@ -28,21 +28,24 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.plugin;
+package org.beanlet.rest;
 
-import java.util.List;
+import org.beanlet.BeanletStateException;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
+ * Provides access to the web runtime context of the beanlet instance.
  *
  * @author Leon van Zantvoort
  */
-public interface DependencyInjectionFactory {
+public interface RestContext {
 
-    List<DependencyInjection> getConstructorDependencyInjections(Class<?> cls);
-
-    List<DependencyInjection> getSetterDependencyInjections(Class<?> cls);
-
-    // PENDING: replace by ObjectFactory?
-    List<DependencyInjection> getFactoryDependencyInjections(Class<?> cls, 
-            String factoryMethod);
+    /**
+     * Returns the current <code>ServletRequest</code>.
+     * @throws org.beanlet.BeanletStateException if the current thread is not associated
+     * with a servlet call.
+     */
+    ServletRequest getServletRequest() throws BeanletStateException;
 }

@@ -28,21 +28,32 @@
  * zantvoort@users.sourceforge.net
  * http://beanlet.org
  */
-package org.beanlet.plugin;
+package org.beanlet;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * <li>Beanlets without any scope annotation and beanlets marked with
+ * this annotation are called vanilla beanlets. Vanilla beanlets do not
+ * have a stub that controls access to the beanlet instance. Clients
+ * have access to the actual object. In short, they can invoke methods
+ * directly on the beanlet instance.<br>
+ * The container guarantees that only a single instance of this beanlet
+ * exists at the same time. This particular instance is always returned
+ * upon request.</p>
+ *
+ * <p></p>
+ * 
+ * {@beanlet.annotation}
  *
  * @author Leon van Zantvoort
  */
-public interface DependencyInjectionFactory {
-
-    List<DependencyInjection> getConstructorDependencyInjections(Class<?> cls);
-
-    List<DependencyInjection> getSetterDependencyInjections(Class<?> cls);
-
-    // PENDING: replace by ObjectFactory?
-    List<DependencyInjection> getFactoryDependencyInjections(Class<?> cls, 
-            String factoryMethod);
+@ScopeAnnotation
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Singleton {
+    
 }

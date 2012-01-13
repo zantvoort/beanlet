@@ -2,10 +2,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.beanlet</groupId>
-    <artifactId>beanlet-plugin</artifactId>
+    <artifactId>beanlet-rest-jersey</artifactId>
     <packaging>jar</packaging>
-    <version>0.11</version>
-    <name>Beanlet Plugin</name>
+    <version>0.1</version>
+    <name>Beanlet Rest Jersey</name>
     <url>http://beanlet.org</url>
     <licenses>
         <license>
@@ -16,22 +16,22 @@
     </licenses>
     <dependencies>
         <dependency>
-            <groupId>org.jargo</groupId>
-            <artifactId>jargo</artifactId>
-            <version>0.7</version>
-            <scope>compile</scope>
+            <groupId>org.beanlet</groupId>
+            <artifactId>beanlet-rest</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.beanlet</groupId>
-            <artifactId>beanlet</artifactId>
-            <version>0.8</version>
-            <scope>compile</scope>
+            <artifactId>beanlet-common</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.beanlet</groupId>
-            <artifactId>beanlet-annotation</artifactId>
-            <version>0.3</version>
-            <scope>compile</scope>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>1.8</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -55,9 +55,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-plugin</connection>
-        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-plugin</developerConnection>
-        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-plugin</url>
+        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-rest-impl</connection>
+        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-rest-impl</developerConnection>
+        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-rest-impl</url>
     </scm>
     <reporting>
         <plugins>
@@ -82,35 +82,21 @@
         </snapshotRepository>
         <site>
             <id>beanlet-site</id>
-            <name>Beanlet Implementation Site</name>
-            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-plugin</url>
+            <name>Beanlet Web Implementation Site</name>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-rest-impl</url>
         </site>
     </distributionManagement>    
     <repositories>
-        <repository>
-            <id>jargo-repository</id>
-            <name>Jargo Maven Repository</name>
-            <url>http://jargo.org/maven</url>
-        </repository>
-        <repository>
-            <id>jargo-snapshot-repository</id>
-            <name>Jargo Maven Snapshot Repository</name>
-            <url>http://jargo.org/maven-snapshot</url>
-        </repository>
         <repository>
             <id>beanlet-repository</id>
             <name>Beanlet Maven Repository</name>
             <url>http://beanlet.org/maven</url>
         </repository>
         <repository>
-            <id>beanlet-snapshot repository</id>
+            <id>beanlet-snapshot-repository</id>
             <name>Beanlet Maven Snapshot Repository</name>
             <url>http://beanlet.org/maven-snapshot</url>
-        </repository>
-        <repository>
-            <id>java.net2</id>
-            <name>Repository hosting the jee6 artifacts</name>
-            <url>http://download.java.net/maven/2</url>
+            <snapshots></snapshots>
         </repository>
     </repositories>
     <build>

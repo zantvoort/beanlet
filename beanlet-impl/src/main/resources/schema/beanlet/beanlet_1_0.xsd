@@ -486,12 +486,10 @@
         </xs:complexContent>
     </xs:complexType>
     
-    <xs:element name="vanilla" type="vanilla-type" substitutionGroup="annotation"/>
-    <xs:complexType name="vanilla-type">
+    <xs:element name="singleton" type="singleton-type" substitutionGroup="annotation"/>
+    <xs:complexType name="singleton-type">
         <xs:complexContent>
-            <xs:extension base="annotation-type">
-                <xs:attribute name="singleton" type="xs:boolean" use="optional"/>
-            </xs:extension>
+            <xs:extension base="annotation-type"/>
         </xs:complexContent>
     </xs:complexType>
     

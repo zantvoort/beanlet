@@ -30,6 +30,7 @@
  */
 package org.beanlet.common;
 
+import org.beanlet.*;
 import org.beanlet.plugin.BeanletConfiguration;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -37,15 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.beanlet.BeanletValidationException;
-import org.beanlet.Lazy;
-import org.beanlet.Proxy;
-import org.beanlet.Retention;
-import org.beanlet.RetentionPolicy;
-import org.beanlet.ScopeAnnotation;
-import org.beanlet.Stateful;
-import org.beanlet.Stateless;
-import org.beanlet.Vanilla;
+
 import org.beanlet.annotation.ElementAnnotation;
 import org.beanlet.annotation.PackageElement;
 import org.beanlet.annotation.TypeElement;
@@ -105,7 +98,7 @@ public final class Beanlets {
     
     private final Stateful statefulAnnotation;
     private final Stateless statelessAnnotation;
-    private final Vanilla vanillaAnnotation;
+    private final Singleton singletonAnnotation;
     private final Lazy lazyAnnotation;
     private final Lazy lazyPackageAnnotation;
     private final Retention retentionAnnotation;
@@ -116,7 +109,7 @@ public final class Beanlets {
     private Beanlets() {
         statefulAnnotation = null;
         statelessAnnotation = null;
-        vanillaAnnotation = null;
+        singletonAnnotation = null;
         lazyAnnotation = null;
         lazyPackageAnnotation = null;
         retentionAnnotation = null;
@@ -133,8 +126,8 @@ public final class Beanlets {
         statelessAnnotation = configuration.getAnnotationDomain().getDeclaration(
                 Stateless.class).getAnnotation(
                 TypeElement.instance(configuration.getType()));
-        vanillaAnnotation = configuration.getAnnotationDomain().getDeclaration(
-                Vanilla.class).getAnnotation(
+        singletonAnnotation = configuration.getAnnotationDomain().getDeclaration(
+                Singleton.class).getAnnotation(
                 TypeElement.instance(configuration.getType()));
         lazyAnnotation = configuration.getAnnotationDomain().getDeclaration(
                 Lazy.class).getAnnotation(
@@ -190,11 +183,15 @@ public final class Beanlets {
     }
     
     public boolean isVanilla() {
-        return getVanilla() != null || !hasScopeAnnotation;
+        return getSingleton() != null || !hasScopeAnnotation;
     }
-    
-    public Vanilla getVanilla() {
-        return vanillaAnnotation;
+
+    public boolean isSingleton() {
+        return getSingleton() != null;
+    }
+
+    public Singleton getSingleton() {
+        return singletonAnnotation;
     }
     
     public boolean isLazy() {

@@ -5,7 +5,7 @@
     <artifactId>beanlet-web</artifactId>
     <packaging>jar</packaging>
     <version>0.1</version>
-    <name>Beanlet Web</name>
+    <name>Beanlet Rest</name>
     <url>http://beanlet.org</url>
     <licenses>
         <license>
@@ -25,7 +25,7 @@
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>6.0</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <issueManagement>

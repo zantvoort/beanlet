@@ -57,7 +57,7 @@ public final class EntityManagerInvocationInterceptorFactoryProviderImpl impleme
     
     public Sequence sequence(SequentialDeployable deployable) {
         if (deployable.getClass().getName().equals(
-                "org.beanlet.transaction.impl.TransactionInvocationInterceptorFactoryProviderImpl")) {
+                "org.beanlet.transaction.jersey.TransactionInvocationInterceptorFactoryProviderImpl")) {
             return Sequence.AFTER;
         }
         return Sequence.BEFORE;

@@ -6,3 +6,6 @@ org.beanlet.web.impl.WebServletElementAnnotationFactoryProviderImpl
 org.beanlet.web.impl.WebFilterElementAnnotationFactoryProviderImpl
 org.beanlet.web.impl.BeanletConfigurationValidatorProviderImpl
 org.beanlet.web.impl.MappedElementAnnotationFactoryProviderImpl
+org.beanlet.web.impl.WebServletObjectFactoryProviderImpl
+org.beanlet.web.impl.WebFilterObjectFactoryProviderImpl
+org.beanlet.web.impl.WebListenerObjectFactoryProviderImpl

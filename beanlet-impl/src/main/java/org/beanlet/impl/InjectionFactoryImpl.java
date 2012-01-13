@@ -145,9 +145,13 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                         getConstructor();
                 if (c.getParameterTypes().length == 0) {
                     Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
-                    assert injectant.isStatic();
-                    assert injectant.getObject() == null;
-                    injection = new ConstructorInjectionImpl<T>(c);
+                    if (injectant != null) {
+                        assert injectant.isStatic();
+                        assert injectant.getObject() == null;
+                        injection = new ConstructorInjectionImpl<T>(c);
+                    } else {
+                        injection = null;
+                    }
                 } else if (c.getParameterTypes().length == 1) {
                     Injectant<?> injectant = first.getInjectant(ctx);
                     if (injectant != null) {
@@ -170,9 +174,13 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                 Method m = ((MethodElement) first.getTarget()).getMethod();
                 if (m.getParameterTypes().length == 0) {
                     Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
-                    assert injectant.isStatic();
-                    assert injectant.getObject() == null;
-                    injection = new FactoryMethodInjectionImpl<T>(m);
+                    if (injectant != null) {
+                        assert injectant.isStatic();
+                        assert injectant.getObject() == null;
+                        injection = new FactoryMethodInjectionImpl<T>(m);
+                    } else {
+                        injection = null;
+                    }
                 } else if (m.getParameterTypes().length == 1) {
                     Injectant<?> injectant = first.getInjectant(ctx);
                     if (injectant != null) {
@@ -247,9 +255,13 @@ public final class InjectionFactoryImpl<T> implements InjectionFactory<T> {
                 }
                 Field f = ((FieldElement) first.getTarget()).getField();
                 Injectant<?> injectant = first.getInjectant(ctx);   // Always request the injectant.
-                assert injectant.isStatic();
-                assert injectant.getObject() == null;
-                injection = new FactoryFieldInjectionImpl<T>(f);
+                if (injectant != null) {
+                    assert injectant.isStatic();
+                    assert injectant.getObject() == null;
+                    injection = new FactoryFieldInjectionImpl<T>(f);
+                } else {
+                    injection = null;
+                }
                 break;
             default:
                 assert false : first.getTarget();

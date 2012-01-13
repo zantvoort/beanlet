@@ -57,6 +57,12 @@
         </dependency>
         <dependency>
             <groupId>org.beanlet</groupId>
+            <artifactId>beanlet-rest</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.beanlet</groupId>
             <artifactId>beanlet-springframework</artifactId>
             <version>0.1</version>
             <scope>provided</scope>
@@ -101,6 +107,12 @@
             <groupId>org.beanlet</groupId>
             <artifactId>beanlet-web-impl</artifactId>
             <version>0.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.beanlet</groupId>
+            <artifactId>beanlet-rest-impl</artifactId>
+            <version>0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

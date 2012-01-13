@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.beanlet</groupId>
-    <artifactId>beanlet-plugin</artifactId>
+    <artifactId>beanlet-rest</artifactId>
     <packaging>jar</packaging>
-    <version>0.11</version>
-    <name>Beanlet Plugin</name>
+    <version>0.1</version>
+    <name>Beanlet Rest</name>
     <url>http://beanlet.org</url>
     <licenses>
         <license>
@@ -16,21 +16,9 @@
     </licenses>
     <dependencies>
         <dependency>
-            <groupId>org.jargo</groupId>
-            <artifactId>jargo</artifactId>
-            <version>0.7</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.beanlet</groupId>
             <artifactId>beanlet</artifactId>
             <version>0.8</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.beanlet</groupId>
-            <artifactId>beanlet-annotation</artifactId>
-            <version>0.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -55,9 +43,10 @@
         </developer>
     </developers>
     <scm>
-        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-plugin</connection>
-        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-plugin</developerConnection>
-        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-plugin</url>
+        <connection>:pserver:anonymous@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-rest</connection>
+        <developerConnection>:ext:developername@beanlet.cvs.sourceforge.net:/cvsroot/beanlet/beanlet-rest
+        </developerConnection>
+        <url>http://beanlet.cvs.sourceforge.net/beanlet/beanlet-rest</url>
     </scm>
     <reporting>
         <plugins>
@@ -67,6 +56,22 @@
                 <configuration>
                     <minmemory>128m</minmemory>
                     <maxmemory>512m</maxmemory>
+                    <author>false</author>
+                    <show>protected</show>
+                    <linksource>true</linksource>
+                    <links>
+                        <url>http://java.sun.com/javase/6/docs/api/</url>
+                    </links>
+                    <taglets>
+                        <taglet>
+                            <tagletClass>org.beanlet.taglet.AnnotationTaglet</tagletClass>
+                            <tagletArtifact>
+                                <groupId>org.beanlet</groupId>
+                                <artifactId>beanlet-taglet</artifactId>
+                                <version>0.1</version>
+                            </tagletArtifact>
+                        </taglet>
+                    </taglets>
                 </configuration>
             </plugin>
         </plugins>
@@ -82,30 +87,21 @@
         </snapshotRepository>
         <site>
             <id>beanlet-site</id>
-            <name>Beanlet Implementation Site</name>
-            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-plugin</url>
+            <name>Beanlet Web Site</name>
+            <url>scp://shell.sourceforge.net/home/groups/b/be/beanlet/htdocs/site/beanlet-rest</url>
         </site>
-    </distributionManagement>    
+    </distributionManagement>
     <repositories>
-        <repository>
-            <id>jargo-repository</id>
-            <name>Jargo Maven Repository</name>
-            <url>http://jargo.org/maven</url>
-        </repository>
-        <repository>
-            <id>jargo-snapshot-repository</id>
-            <name>Jargo Maven Snapshot Repository</name>
-            <url>http://jargo.org/maven-snapshot</url>
-        </repository>
         <repository>
             <id>beanlet-repository</id>
             <name>Beanlet Maven Repository</name>
             <url>http://beanlet.org/maven</url>
         </repository>
         <repository>
-            <id>beanlet-snapshot repository</id>
+            <id>beanlet-snapshot-repository</id>
             <name>Beanlet Maven Snapshot Repository</name>
             <url>http://beanlet.org/maven-snapshot</url>
+            <snapshots></snapshots>
         </repository>
         <repository>
             <id>java.net2</id>

@@ -64,8 +64,7 @@ public final class VanillaBeanletObjectFactoryProviderImpl extends
             ComponentConfiguration<T> configuration) {
         final ComponentObjectFactory<T> factory;
         Beanlets beanlets = Beanlets.getInstance(configuration);
-        if (beanlets.getVanilla() == null || 
-                beanlets.getVanilla().singleton()) {
+        if (beanlets.isSingleton()) {
             if (beanlets.isLazy()) {
                 factory = new ComponentObjectFactory<T>() {
                     private ComponentObjectBuilder<T> builder;
