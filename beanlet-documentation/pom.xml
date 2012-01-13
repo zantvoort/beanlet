@@ -39,6 +39,7 @@
         <module>../beanlet-transaction</module>
         <module>../beanlet-management</module>
         <module>../beanlet-naming</module>
+        <module>../beanlet-rest</module>
         <module>../beanlet-web</module>
         <module>../beanlet-persistence</module>
         <module>../beanlet-springframework</module>
