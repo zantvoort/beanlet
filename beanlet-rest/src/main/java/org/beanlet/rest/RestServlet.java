@@ -64,8 +64,8 @@ import org.beanlet.BeanletApplicationException;
  *
  * <pre>
  * &lt;servlet&gt;
- * &lt;servlet-name&gt;Beanlet Rest Servlet&lt;/servlet-name&gt;
- * &lt;servlet-class&gt;org.beanlet.rest.RestServlet&lt;/servlet-class&gt;
+ *   &lt;servlet-name&gt;Beanlet Rest Servlet&lt;/servlet-name&gt;
+ *   &lt;servlet-class&gt;org.beanlet.rest.RestServlet&lt;/servlet-class&gt;
  *   &lt;init-param&gt;
  *     &lt;param-name&gt;om.sun.jersey.config.property.packages&lt;/param-name&gt;
  *     &lt;param-value&gt;com.acme&lt;/param-value&gt;
