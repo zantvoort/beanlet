@@ -196,6 +196,13 @@ public abstract class BeanletApplicationContext {
     }
 
     /**
+     * Undeploys all components and stops all internal container threads.
+     * @throws BeanletApplicationContext indicates an error during container
+     * shutdown.
+     */
+    public abstract void shutdown() throws BeanletApplicationException;
+
+    /**
      * Factory method for the specified {@code eventType}.
      *
      * @return a concrete implementation of the specified {@code eventType}.

@@ -9,6 +9,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
+import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import org.beanlet.BeanletApplicationException;
@@ -23,7 +24,7 @@ import org.beanlet.BeanletApplicationException;
  * &lt;web-app&gt;
  *   ...
  *   &lt;listener&gt;
- *     &lt;listener-class&gt;org.beanlet.web.RequestContextListener&lt;listener-class&gt;
+ *     &lt;listener-class&gt;org.beanlet.web.ServletContextListener&lt;listener-class&gt;
  *   &lt;/listener&gt;
  *   ...
  * &lt;/web-app&gt;
@@ -33,10 +34,10 @@ import org.beanlet.BeanletApplicationException;
  * @see Session
  * @author Leon van Zantvoort
  */
-public class RequestContextListener implements ServletRequestListener {
+public class ServletContextListener implements javax.servlet.ServletContextListener {
 
     private static class LazyHolder {
-        static final Constructor<ServletRequestListener> delegate;
+        static final Constructor<javax.servlet.ServletContextListener> delegate;
         static {
             try {
                 try {
@@ -44,14 +45,14 @@ public class RequestContextListener implements ServletRequestListener {
                             new PrivilegedExceptionAction<Constructor>() {
                         public Constructor run() throws Exception {
                             String path = "META-INF/services/" + 
-                                    RequestContextListener.class.getName();
+                                    ServletContextListener.class.getName();
 
                             // PERMISSION: java.lang.RuntimePermission getClassLoader
                             ClassLoader loader = Thread.currentThread().
                                     getContextClassLoader();
                             final Enumeration<URL> urls;
                             if (loader == null) {
-                                urls = RequestContextListener.class.
+                                urls = ServletContextListener.class.
                                         getClassLoader().getResources(path);
                             } else {
                                 urls = loader.getResources(path);
@@ -98,8 +99,8 @@ public class RequestContextListener implements ServletRequestListener {
                         }
                     });
                     @SuppressWarnings("unchecked")
-                    Constructor<ServletRequestListener> tmp = 
-                            (Constructor<ServletRequestListener>) constructor;
+                    Constructor<javax.servlet.ServletContextListener> tmp =
+                            (Constructor<javax.servlet.ServletContextListener>) constructor;
                     delegate = tmp;
                 } catch (PrivilegedActionException e) {
                     throw e.getException();
@@ -116,9 +117,9 @@ public class RequestContextListener implements ServletRequestListener {
         }
     }
 
-    private final ServletRequestListener delegate;
+    private final javax.servlet.ServletContextListener delegate;
     
-    public RequestContextListener() {
+    public ServletContextListener() {
         try {
             try {
                 delegate = LazyHolder.delegate.newInstance();
@@ -139,12 +140,12 @@ public class RequestContextListener implements ServletRequestListener {
             throw new BeanletApplicationException(e);
         }
     }
-    
-    public void requestInitialized(ServletRequestEvent event) {
-        delegate.requestInitialized(event);
+
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        delegate.contextInitialized(servletContextEvent);
     }
 
-    public void requestDestroyed(ServletRequestEvent event) {
-        delegate.requestDestroyed(event);
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        delegate.contextDestroyed(servletContextEvent);
     }
 }

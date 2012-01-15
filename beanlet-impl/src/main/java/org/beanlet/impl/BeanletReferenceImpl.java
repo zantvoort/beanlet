@@ -123,16 +123,14 @@ public final class BeanletReferenceImpl<T> implements BeanletReference<T> {
                         event, t);
             } catch (ComponentEventNotExecutableException e2) {
                 throw new BeanletEventNotExecutableException(
-                        
-                        e2.getComponentName(), event, 
+                        e2.getComponentName(), event,
                         CHAIN_JARGO_EXCEPTIONS ? e2 : e2.getCause());
             } catch (ComponentEventException e2) {
                 throw new BeanletEventException(e2.getComponentName(), event, 
                         CHAIN_JARGO_EXCEPTIONS ? e2 : e2.getCause());
             } catch (RuntimeException e2) {
                 throw new BeanletEventException(
-                        
-                        getBeanletMetaData().getBeanletName(), event, 
+                       getBeanletMetaData().getBeanletName(), event,
                         CHAIN_JARGO_EXCEPTIONS ? e2 : e2.getCause());
             }
         } else {

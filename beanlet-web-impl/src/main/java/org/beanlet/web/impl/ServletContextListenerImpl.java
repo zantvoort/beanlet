@@ -32,42 +32,26 @@ package org.beanlet.web.impl;
 
 import org.beanlet.BeanletApplicationContext;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 
 /**
  * @author Leon van Zantvoort
  */
-public final class RequestContextListenerImpl implements ServletRequestListener {
+public final class ServletContextListenerImpl implements javax.servlet.ServletContextListener {
 
-    private final ServletRequestListener listener;
-
-    public RequestContextListenerImpl() {
-        if (!WebConstants.isWebServletSupported()) {
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        try {
+            ServletContext ctx = servletContextEvent.getServletContext();
+            ctx.addListener(new RequestContextListener());
+            WebHelper.setServletContext(ctx);
             BeanletApplicationContext.instance();
-            this.listener =  new RequestContextListener();
-        } else {
-            this.listener = new ServletRequestListener() {
-                public void requestDestroyed(ServletRequestEvent servletRequestEvent) {
-                }
-
-                public void requestInitialized(ServletRequestEvent servletRequestEvent) {
-                }
-            };
+        } finally {
+            WebHelper.setServletContext(null);
         }
     }
 
-    public void requestDestroyed(ServletRequestEvent event) {
-        listener.requestDestroyed(event);
-    }
-
-    public void requestInitialized(ServletRequestEvent event) {
-        listener.requestInitialized(event);
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        BeanletApplicationContext.instance().shutdown();
     }
 }

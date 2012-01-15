@@ -72,6 +72,10 @@ public final class BeanletApplicationContextImpl extends
         return this;
     }
     
+    public void shutdown() {
+        ComponentApplicationContext.instance().shutdown();
+    }
+    
     public <T extends Event> T getEvent(Class<T> eventClass) {
         return factory.getEvent(eventClass);
     }

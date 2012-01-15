@@ -39,17 +39,16 @@ import com.sun.jersey.core.spi.component.ioc.IoCFullyManagedComponentProvider;
 import com.sun.jersey.core.spi.component.ioc.IoCProxiedComponentProvider;
 import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import org.beanlet.*;
+import org.beanlet.BeanletApplicationContext;
+import org.beanlet.BeanletApplicationException;
+import org.beanlet.BeanletFactory;
+import org.beanlet.BeanletValidationException;
 import org.beanlet.rest.Restlet;
 
 import java.util.Set;
 
 
 public class JerseyRestContainer extends ServletContainer {
-
-    public JerseyRestContainer() {
-        BeanletApplicationContext.instance();
-    }
 
     @Override
     protected void initiate(ResourceConfig rc, WebApplication wa) {

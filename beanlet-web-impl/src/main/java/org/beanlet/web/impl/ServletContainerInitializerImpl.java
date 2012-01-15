@@ -32,20 +32,12 @@ package org.beanlet.web.impl;
 
 import org.beanlet.BeanletApplicationContext;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import java.util.Set;
 
 public class ServletContainerInitializerImpl implements ServletContainerInitializer {
 
     public void onStartup(Set<Class<?>> classes, ServletContext ctx) throws ServletException {
-        WebHelper.setServletContext(ctx);
-        try {
-            ctx.addListener(new RequestContextListener());
-            BeanletApplicationContext.instance();
-        } finally {
-            WebHelper.setServletContext(null);
-        }
+        ctx.addListener(new ServletContextListenerImpl());
     }
 }
