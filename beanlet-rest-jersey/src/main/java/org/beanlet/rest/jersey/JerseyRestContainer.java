@@ -108,8 +108,8 @@ public class JerseyRestContainer extends ServletContainer {
                     BeanletFactory<?> factory = BeanletApplicationContext.instance().getBeanletFactory(beanletName);
                     Restlet restlet = factory.getBeanletMetaData().getAnnotation(Restlet.class);
                     if (restlet == null || restlet.createRestlet()) {
-                        if (factory.getBeanletMetaData().isStatic()) {
-                            throw new BeanletValidationException(beanletName, "Restlet beanlets created by Rest runtime must not be static.");
+                        if (!factory.getBeanletMetaData().isVanilla() || factory.getBeanletMetaData().isStatic()) {
+                            throw new BeanletValidationException(beanletName, "Restlet beanlets created by Rest runtime must not non-static vanilla beanlets.");
                         }
                         provider = new JersyManagedComponentProvider(beanletName);
                     } else {

@@ -34,11 +34,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
 import org.beanlet.BeanletValidationException;
 import org.beanlet.PostConstruct;
 import org.beanlet.PreDestroy;
@@ -59,9 +58,11 @@ import org.jargo.ComponentConfiguration;
  */
 public final class LifecycleProviderImpl extends AbstractProvider implements 
         LifecycleProvider {
-    
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
     public List<Lifecycle> getLifecycles(final ComponentConfiguration 
-            configuration, Executor executor) {
+            configuration, Executor executor, final boolean vanilla) {
         List<Lifecycle> lifecycles = new ArrayList<Lifecycle>();
         if (configuration instanceof BeanletConfiguration) {
             lifecycles.add(new Lifecycle() {
@@ -71,7 +72,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
                 }
                 public List<Invocation> onDestroy(Class<?> cls, boolean interceptor) {
                     return getPreDestroyInvocations((BeanletConfiguration) 
-                            configuration, cls, interceptor);
+                            configuration, cls, interceptor, vanilla);
                 }
             });
         }
@@ -158,7 +159,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
     }
     
     private List<Invocation> getPreDestroyInvocations(BeanletConfiguration configuration,
-            Class<?> cls, boolean interceptor) {
+            Class<?> cls, boolean interceptor, boolean vanilla) {
         final List<Invocation> invocations;
         
         if (configuration.getType().equals(cls) || interceptor) {
@@ -218,6 +219,14 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
 
                 final Invocation i;
                 if (preDestroyMethod != null) {
+                    if (vanilla && !invocations.isEmpty()) {
+                        if (!ContainsValue(preDestroyMethod.getAnnotation(SuppressWarnings.class))) {
+                            if (!ContainsValue(preDestroyMethod.getDeclaringClass().getAnnotation(SuppressWarnings.class))) {
+                                logger.warning("PreDestroy method is only be executed if vanilla beanlet is destroyed explicitly. It is not executed" +
+                                        " if it is claimed by the garbage collector. This warning can be suppressed by marking this method or class with @SuppressWarnings(\"predestroy\")");
+                            }
+                        }
+                    }
                     if (interceptor) {
                         i = getInterceptorInvocation(preDestroyMethod);
                     } else {
@@ -235,7 +244,18 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
         }
         return invocations;
     }
-    
+
+    private static boolean ContainsValue(SuppressWarnings at) {
+        boolean found = false;
+        for (String v : at.value()) {
+            if (v.equalsIgnoreCase("predestroy")) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
     private Invocation getInterceptorInvocation(Method method) {
         return new InvocationImpl(method) {
             public Object[] getParameters() {
