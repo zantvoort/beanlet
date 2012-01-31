@@ -223,7 +223,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
                         if (!ContainsValue(preDestroyMethod.getAnnotation(SuppressWarnings.class))) {
                             if (!ContainsValue(preDestroyMethod.getDeclaringClass().getAnnotation(SuppressWarnings.class))) {
                                 logger.warning("PreDestroy method is only be executed if vanilla beanlet is destroyed explicitly. It is not executed" +
-                                        " if it is claimed by the garbage collector. This warning can be suppressed by marking this method or class with @SuppressWarnings(\"predestroy\")");
+                                        " if it is claimed by the garbage collector. This warning can be suppressed by marking this method or class with @SuppressWarnings(\"predestroy\").");
                             }
                         }
                     }
