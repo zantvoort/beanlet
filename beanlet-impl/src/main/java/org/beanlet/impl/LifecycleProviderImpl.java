@@ -219,7 +219,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
 
                 final Invocation i;
                 if (preDestroyMethod != null) {
-                    if (vanilla && !invocations.isEmpty()) {
+                    if (vanilla) {
                         if (!ContainsValue(preDestroyMethod.getAnnotation(SuppressWarnings.class))) {
                             if (!ContainsValue(preDestroyMethod.getDeclaringClass().getAnnotation(SuppressWarnings.class))) {
                                 logger.warning("PreDestroy method is only be executed if vanilla beanlet is destroyed explicitly. It is not executed" +
