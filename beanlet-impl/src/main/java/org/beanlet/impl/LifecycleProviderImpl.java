@@ -247,10 +247,12 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
 
     private static boolean ContainsValue(SuppressWarnings at) {
         boolean found = false;
-        for (String v : at.value()) {
-            if (v.equalsIgnoreCase("predestroy")) {
-                found = true;
-                break;
+        if (at != null) {
+            for (String v : at.value()) {
+                if (v.equalsIgnoreCase("predestroy")) {
+                    found = true;
+                    break;
+                }
             }
         }
         return found;
