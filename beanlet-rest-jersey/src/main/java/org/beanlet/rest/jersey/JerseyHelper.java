@@ -30,14 +30,30 @@
  */
 package org.beanlet.rest.jersey;
 
+import org.beanlet.BeanletReference;
+import org.beanlet.common.BeanletStack;
+
+import javax.persistence.EntityManager;
+import java.util.Map;
+
 public final class JerseyHelper {
 
     private static final InheritableThreadLocal<Object> jerseyObjectLocal = new InheritableThreadLocal<Object>();
     private static final InheritableThreadLocal<String> beanletNameLocal = new InheritableThreadLocal<String>();
+    private static final InheritableThreadLocal<BeanletStack<BeanletReference<?>>> beanletReferenceLocal = new InheritableThreadLocal<BeanletStack<BeanletReference<?>>>() {
+        @Override
+        protected BeanletStack<BeanletReference<?>> initialValue() {
+            return new BeanletStack<BeanletReference<?>>();
+        }
+    };
 
     private JerseyHelper() {
     }
 
+    public static void pushBeanletReference(BeanletReference<?> reference) {
+        beanletReferenceLocal.get().push(reference);
+    }
+    
     public static void setJerseyObject(String beanletName, Object o) {
         beanletNameLocal.set(beanletName);
         jerseyObjectLocal.set(o);
@@ -45,6 +61,10 @@ public final class JerseyHelper {
     
     public static Object getJerseyObject() {
         return jerseyObjectLocal.get();
+    }
+    
+    public static BeanletReference<?> popBeanletReference() {
+        return beanletReferenceLocal.get().pop();
     }
 
     /**

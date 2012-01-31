@@ -99,7 +99,7 @@ public @interface WebServlet {
     /**
      * @return <code>true</code> if instance is created by Servlet container.
      */
-    boolean createServlet() default true;
+    boolean createServlet() default false;
 
     /**
      * @return name of the Servlet

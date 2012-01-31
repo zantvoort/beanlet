@@ -66,7 +66,7 @@ public @interface WebListener {
     /**
      * @return <code>true</code> if instance is created by Servlet container.
      */
-    boolean createListener() default true;
+    boolean createListener() default false;
 
     /**
      * @return description of the listener, if present

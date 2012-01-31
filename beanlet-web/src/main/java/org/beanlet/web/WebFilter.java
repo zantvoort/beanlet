@@ -105,7 +105,7 @@ public @interface WebFilter {
     /**
      * @return <code>true</code> if instance is created by Servlet container.
      */
-    boolean createFilter() default true;
+    boolean createFilter() default false;
 
     /**
      * @return description of the Filter, if present

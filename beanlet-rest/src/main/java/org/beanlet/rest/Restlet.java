@@ -46,5 +46,5 @@ public @interface Restlet {
     /**
      * @return <code>true</code> if instance is created by the Rest runtime.
      */
-    boolean createRestlet() default true;
+    boolean createRestlet() default false;
 }

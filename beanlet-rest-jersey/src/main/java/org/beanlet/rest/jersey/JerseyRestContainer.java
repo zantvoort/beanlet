@@ -39,12 +39,14 @@ import com.sun.jersey.core.spi.component.ioc.IoCFullyManagedComponentProvider;
 import com.sun.jersey.core.spi.component.ioc.IoCProxiedComponentProvider;
 import com.sun.jersey.spi.container.WebApplication;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import org.beanlet.BeanletApplicationContext;
-import org.beanlet.BeanletApplicationException;
-import org.beanlet.BeanletFactory;
-import org.beanlet.BeanletValidationException;
+import org.beanlet.*;
 import org.beanlet.rest.Restlet;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Set;
 
 
@@ -69,7 +71,10 @@ public class JerseyRestContainer extends ServletContainer {
 
             // Is invoked every time server needs the class.
             public Object getInstance() {
-                return BeanletApplicationContext.instance().getBeanlet(beanletName);
+                BeanletFactory<?> factory = BeanletApplicationContext.instance().getBeanletFactory(beanletName);
+                BeanletReference<?> reference = factory.create();
+                JerseyHelper.pushBeanletReference(reference);
+                return reference.getBeanlet();
             }
         };
 
@@ -88,6 +93,7 @@ public class JerseyRestContainer extends ServletContainer {
             }
 
             public Object proxy(Object o) {
+                assert o != null;
                 try {
                     JerseyHelper.setJerseyObject(beanletName, o);
                     return BeanletApplicationContext.instance().getBeanlet(beanletName);
@@ -107,12 +113,15 @@ public class JerseyRestContainer extends ServletContainer {
                     String beanletName = beanletNames.iterator().next();
                     BeanletFactory<?> factory = BeanletApplicationContext.instance().getBeanletFactory(beanletName);
                     Restlet restlet = factory.getBeanletMetaData().getAnnotation(Restlet.class);
-                    if (restlet == null || restlet.createRestlet()) {
+                    if (restlet != null && restlet.createRestlet()) {
                         if (!factory.getBeanletMetaData().isVanilla() || factory.getBeanletMetaData().isStatic()) {
-                            throw new BeanletValidationException(beanletName, "Restlet beanlets created by Rest runtime must not non-static vanilla beanlets.");
+                            throw new BeanletValidationException(beanletName, "Restlet beanlets created by Rest runtime must be not non-static vanilla beanlets.");
                         }
                         provider = new JersyManagedComponentProvider(beanletName);
                     } else {
+                        if (!factory.getBeanletMetaData().isVanilla()) {
+                            throw new BeanletValidationException(beanletName, "Restlet beanlets created by Beanlet runtime must be vanilla beanlets.");
+                        }
                         provider = new BeanletManagedComponentProvider(beanletName);
                     }
                 } else {
@@ -125,5 +134,20 @@ public class JerseyRestContainer extends ServletContainer {
                 return getComponentProvider(c);
             }
         });
+    }
+
+    @Override
+    public int service(URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            return super.service(baseUri, requestUri, request, response);
+        } finally {
+            if (JerseyHelper.getJerseyObject() == null) {   // Should not be invoked in this mode.
+                BeanletReference<?> reference = JerseyHelper.popBeanletReference();
+                assert reference != null;
+                if (!reference.getBeanletMetaData().isStatic()) {
+                    reference.invalidate();
+                }
+            }
+        }
     }
 }
