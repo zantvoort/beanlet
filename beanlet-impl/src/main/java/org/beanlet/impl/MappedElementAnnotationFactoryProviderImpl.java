@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.beanlet.*;
+import org.beanlet.SuppressWarnings;
 import org.beanlet.common.AbstractElementAnnotationFactory;
 import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.ElementAnnotationFactory;

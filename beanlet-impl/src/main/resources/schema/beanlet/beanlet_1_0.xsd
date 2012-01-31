@@ -539,4 +539,22 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+
+    <xs:element name="suppress-warnings" type="suppress-warnings-type" substitutionGroup="annotation"/>
+    <xs:complexType name="suppress-warnings-type">
+        <xs:complexContent>
+            <xs:extension base="annotation-type">
+                <xs:sequence>
+                    <xs:element ref="suppress-warning" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="value" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="suppress-warning">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
 </xs:schema>

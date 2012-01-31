@@ -33,3 +33,4 @@ org.beanlet.impl.LifecycleProviderImpl
 org.beanlet.impl.BeanletEventExecutorProviderImpl
 org.beanlet.impl.ProxyElementAnnotationFactoryProviderImpl
 org.beanlet.impl.BeanletEventFactories
+org.beanlet.impl.SuppressWarningsElementAnnotationFactoryProviderImpl

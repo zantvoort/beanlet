@@ -38,12 +38,11 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import org.beanlet.BeanletValidationException;
-import org.beanlet.PostConstruct;
-import org.beanlet.PreDestroy;
+import org.beanlet.*;
 import org.beanlet.annotation.AnnotationDeclaration;
 import org.beanlet.annotation.Element;
 import org.beanlet.annotation.MethodElement;
+import org.beanlet.annotation.TypeElement;
 import org.beanlet.common.AbstractProvider;
 import org.beanlet.plugin.BeanletConfiguration;
 import org.beanlet.common.InvocationImpl;
@@ -87,7 +86,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
                     getAnnotationDomain().getDeclaration(PostConstruct.class);
             AnnotationDeclaration<?> javaDeclaration = null;
             try {
-                @SuppressWarnings("unchecked")
+                @java.lang.SuppressWarnings("unchecked")
                 Class<? extends Annotation> at = (Class<? extends Annotation>)
                         Class.forName("javax.annotation.PostConstruct");
                 javaDeclaration = configuration.getAnnotationDomain().
@@ -167,7 +166,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
                     getAnnotationDomain().getDeclaration(PreDestroy.class);
             AnnotationDeclaration<?> javaDeclaration = null;
             try {
-                @SuppressWarnings("unchecked")
+                @java.lang.SuppressWarnings("unchecked")
                 Class<? extends Annotation> at = (Class<? extends Annotation>)
                         Class.forName("javax.annotation.PreDestroy");
                 javaDeclaration = configuration.getAnnotationDomain().
@@ -220,10 +219,12 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
                 final Invocation i;
                 if (preDestroyMethod != null) {
                     if (vanilla) {
-                        if (!ContainsValue(preDestroyMethod.getAnnotation(SuppressWarnings.class))) {
-                            if (!ContainsValue(preDestroyMethod.getDeclaringClass().getAnnotation(SuppressWarnings.class))) {
-                                logger.warning("PreDestroy method is only be executed if vanilla beanlet is destroyed explicitly. It is not executed" +
-                                        " if it is claimed by the garbage collector. This warning can be suppressed by marking this method or class with @SuppressWarnings(\"predestroy\").");
+                        AnnotationDeclaration<org.beanlet.SuppressWarnings> ad = configuration.getAnnotationDomain().
+                                getDeclaration(org.beanlet.SuppressWarnings.class);
+                        if (!ContainsValue(ad.getAnnotation(MethodElement.instance(preDestroyMethod)))) {
+                            if (!ContainsValue(ad.getAnnotation(TypeElement.instance(preDestroyMethod.getDeclaringClass())))) {
+                                logger.warning(configuration.getComponentName() + ": PreDestroy method is only be executed if vanilla beanlet is destroyed explicitly. PreDestroy method is not executed" +
+                                        " if objects are claimed by the garbage collector. This warning can be suppressed by marking this method or class with @org.beanlet.SuppressWarnings(\"predestroy\").");
                             }
                         }
                     }
@@ -245,7 +246,7 @@ public final class LifecycleProviderImpl extends AbstractProvider implements
         return invocations;
     }
 
-    private static boolean ContainsValue(SuppressWarnings at) {
+    private static boolean ContainsValue(org.beanlet.SuppressWarnings at) {
         boolean found = false;
         if (at != null) {
             for (String v : at.value()) {
