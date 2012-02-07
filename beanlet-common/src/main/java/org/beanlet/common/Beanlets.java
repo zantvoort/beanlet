@@ -30,19 +30,22 @@
  */
 package org.beanlet.common;
 
-import org.beanlet.*;
-import org.beanlet.plugin.BeanletConfiguration;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.beanlet.annotation.ElementAnnotation;
 import org.beanlet.annotation.PackageElement;
 import org.beanlet.annotation.TypeElement;
+import org.beanlet.plugin.BeanletConfiguration;
+import org.beanlet.RetentionPolicy;
+import org.beanlet.Retention;
+import org.beanlet.Stateful;
+import org.beanlet.Stateless;
+import org.beanlet.Lazy;
+import org.beanlet.Singleton;
+import org.beanlet.Proxy;
+import org.beanlet.ScopeAnnotation;
+import org.beanlet.BeanletValidationException;
 import org.jargo.ComponentConfiguration;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  *

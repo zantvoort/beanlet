@@ -86,4 +86,8 @@ public class BeanletStack<T> {
     public T peek() {
         return instance;
     }
+    
+    public int size() {
+        return instance == null ? 0 : 1 + (instances == null ? 0 : instances.size());
+    }
 }
