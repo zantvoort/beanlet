@@ -125,7 +125,7 @@ public class JerseyRestContainer extends ServletContainer {
                         provider = new BeanletManagedComponentProvider(beanletName);
                     }
                 } else {
-                    throw new BeanletApplicationException("Multiple beanlets exist for restlet type: " + c.getName());
+                    throw new BeanletApplicationException("Multiple beanlets exist for restlet type: " + c.getName() + ".");
                 }
                 return provider;
             };
@@ -138,10 +138,11 @@ public class JerseyRestContainer extends ServletContainer {
 
     @Override
     public int service(URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int size = JerseyHelper.getBeanletReferenceCount();
         try {
             return super.service(baseUri, requestUri, request, response);
         } finally {
-            if (JerseyHelper.getJerseyObject() == null) {   // Should not be invoked in this mode.
+            while (size > 0 && JerseyHelper.getBeanletReferenceCount() < size) {
                 BeanletReference<?> reference = JerseyHelper.popBeanletReference();
                 assert reference != null;
                 if (!reference.getBeanletMetaData().isStatic()) {

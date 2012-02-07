@@ -33,9 +33,6 @@ package org.beanlet.rest.jersey;
 import org.beanlet.BeanletReference;
 import org.beanlet.common.BeanletStack;
 
-import javax.persistence.EntityManager;
-import java.util.Map;
-
 public final class JerseyHelper {
 
     private static final InheritableThreadLocal<Object> jerseyObjectLocal = new InheritableThreadLocal<Object>();
@@ -65,6 +62,10 @@ public final class JerseyHelper {
     
     public static BeanletReference<?> popBeanletReference() {
         return beanletReferenceLocal.get().pop();
+    }
+
+    public static int getBeanletReferenceCount() {
+        return beanletReferenceLocal.get().size();
     }
 
     /**
