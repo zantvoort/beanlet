@@ -35,14 +35,14 @@
  * <p><h3>Beanlet Scopes</h3>
  * The Beanlet core packages come with three object scopes:
  * <ul>
- * <li>{@link org.beanlet.Vanilla} beanlets are the most straight forward type
+ * <li>Vanilla beanlets are the most straight forward type
  * of beanlets within this specification. Unlike the scopes described below, 
  * vanilla beanlets do not have a stub that controls access to the beanlet 
  * instance. Clients have access to the actual object. In short, 
  * they can invoke methods directly on the beanlet instance.<br>
  * A new beanlet instance is created for each beanlet that is explicitely 
  * requested throuh the APIs, or implicitly through dependency injection.<br> 
- * Vanilla scoped beanlets can also be configured to be {@code singleton}. In 
+ * Vanilla scoped beanlets can also be configured to be {@link org.beanlet.Singleton}. In
  * this case, the container guarantees that only a single instance of this 
  * beanlet exists at the same time. It is always this particular instance that
  * is returned when this beanlet is requested.
