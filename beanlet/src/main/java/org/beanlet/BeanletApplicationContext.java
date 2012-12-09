@@ -94,7 +94,7 @@ public abstract class BeanletApplicationContext {
                                 BufferedReader reader = new BufferedReader(new InputStreamReader(
                                         url.openStream()));
                                 try {
-                                    String className = null;
+                                    String className;
                                     while ((className = reader.readLine()) != null) {
                                         final String name = className.trim();
                                         if (!name.startsWith("#") && !name.startsWith(";") &&
@@ -145,6 +145,15 @@ public abstract class BeanletApplicationContext {
             }
         }
     }
+
+    /**
+     * Bootstraps the Beanlet container by obtaining a {@code BeanletApplicationContext} instance.
+     *
+     * @param args no arguments required.
+     */
+    public static void main(String... args) {
+        BeanletApplicationContext.instance();
+    }
   
     /**
      * <p>Returns a {@code BeanletApplicationContext} instance. If the container 
@@ -180,14 +189,14 @@ public abstract class BeanletApplicationContext {
             throw e;
         }
     }
-    
+
     /**
      * Subclasses of this class can implement this method to control which 
      * instance is returned to the caller of the static {@code instance} method.
      * The default implementation of this method simply returns {@code this}.
      * 
      * @return a beanlet application context reference.
-     * @throws BeanletApplicationContext indicates an error during container
+     * @throws BeanletApplicationException indicates an error during container
      * initialization.
      */
     protected BeanletApplicationContext resolveInstance() throws 
