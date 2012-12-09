@@ -30,11 +30,11 @@
  */
 package org.beanlet.persistence.impl;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Logger;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
 
 /**
  *
@@ -52,6 +52,8 @@ public final class PersistenceConstants {
             PersistenceConstants.class.getClassLoader().
                     loadClass("javax.persistence.Persistence");
         } catch (ClassNotFoundException ex) {
+            tmp = false;
+        } catch (ClassFormatError ex) { // Thrown if JPA container classes are not available.
             tmp = false;
         }
         available = tmp;
