@@ -1,5 +1,9 @@
 package org.beanlet.web;
 
+import org.beanlet.BeanletApplicationException;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletRequestListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
@@ -9,10 +13,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
-import org.beanlet.BeanletApplicationException;
 
 /**
  * Add the following configuration to the web application's {@code web.xml} file
@@ -62,7 +62,7 @@ public class ServletContextListener implements javax.servlet.ServletContextListe
                                 BufferedReader reader = new BufferedReader(new InputStreamReader(
                                         url.openStream()));
                                 try {
-                                    String className = null;
+                                    String className;
                                     while ((className = reader.readLine()) != null) {
                                         final String name = className.trim();
                                         if (!name.startsWith("#") && !name.startsWith(";") &&
